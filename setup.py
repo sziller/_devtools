@@ -10,7 +10,7 @@ from setuptools import setup
 setup(
     name='devtools',  # package name, used at pip or tar.
     version='0.0.0',  # version Nr.... whatever
-    packages=["backend_classes", "messages", "sql_access"],
+    packages=["api_classes", "backend_classes", "messages", "sql_access"],
     include_package_data=True,
     url="sziller.eu",  # if url is used at all
     license='MIT',
