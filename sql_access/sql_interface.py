@@ -9,7 +9,7 @@ import inspect
 from sqlalchemy import create_engine
 from sqlalchemy.pool import NullPool
 from sqlalchemy.orm import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, Session
 
 # Setting up logger                                         logger                      -   START   -
 lg = logging.getLogger()
@@ -40,8 +40,8 @@ def createSession(db_fullname: str, tables: list or None = None, style: str = "S
         raise Exception("no valid dialect defined")
 
     base.metadata.create_all(bind=engine, tables=tables)  # check if always necessary!!!
-    Session = sessionmaker(bind=engine)
-    return Session()
+    returned_session = sessionmaker(bind=engine)
+    return returned_session()
 
 # SESSION creation ENDED                                                                    -   ENDED   -
 
@@ -51,7 +51,7 @@ def createSession(db_fullname: str, tables: list or None = None, style: str = "S
 def ADD_rows_to_table(primary_key: str,
                       data_list: list,
                       row_obj: Base,
-                      session: sessionmaker.object_session):
+                      session: Session):
     """=== Function name: ADD_rows_to_table ============================================================================
     SQL action. You use the session entered. Function simply fills in data represented in <data_list> into DB defined
     by <session_in>. Function will try to enter data into the Table defined by <row_obj>.
@@ -87,7 +87,7 @@ def ADD_rows_to_table(primary_key: str,
 def DELETE_multiple_rows_by_filterkey(filterkey: str,
                                       filtervalue_list: list,
                                       row_obj: Base,
-                                      session: sessionmaker.object_session):
+                                      session: Session):
     """=== DELETE_multiple_rows_by_filterkey ===========================================================================
     SQL action. You use the session entered. Function deletes rows, whoes <filterkey> colum's value is included in
     <filtervalue_list>. Function will try to delete data from the Table defined by <row_obj>.
@@ -112,7 +112,7 @@ def MODIFY_multiple_rows_by_column_to_value(filterkey: str,
                                             target_key: str,
                                             target_value,
                                             row_obj: Base,
-                                            session: sessionmaker.object_session):
+                                            session: Session):
     """=== Function name: MODIFY_multiple_rows_by_column_to_value ======================================================
     SQL action. You use the session entered. Function alters DB of all rows, whoes <filterkey>'s current value is
     represented in <filtervalue_list>.
@@ -139,7 +139,7 @@ def MODIFY_multiple_rows_by_column_to_value(filterkey: str,
 def MODIFY_multiple_rows_by_column_by_dict(filterkey: str,
                                            mod_dict: dict,
                                            row_obj: Base,
-                                           session: sessionmaker.object_session):
+                                           session: Session):
     """=== Function name: MODIFY_multiple_rows_by_column_by_dict =======================================================
     SQL action. You use the session entered. Function alters DB of dedicated rows.
     Each rows <filterkey> column will be checked. If current value of a <filterey> is included in <mod_dict> as a key,
@@ -178,7 +178,7 @@ def MODIFY_multiple_rows_by_column_by_dict(filterkey: str,
 
 def QUERY_entire_table(ordered_by: str,
                        row_obj: Base,
-                       session: sessionmaker.object_session) -> list:
+                       session: Session) -> list:
     """=== Function name: QUERY_entire_table ===========================================================================
     SQL action. You use the session entered. Function returns the entire DB table defined by <row_obj>.
     :param ordered_by: str -
@@ -198,8 +198,7 @@ def QUERY_rows_by_column_filtervalue_list_ordered(filterkey: str,
                                                   filtervalue_list: list,
                                                   ordered_by: str,
                                                   row_obj: Base,
-                                                  session: sessionmaker.object_session) -> list:
-
+                                                  session: Session) -> list:
     """=== Function name: QUERY_rows_by_column_filtervalue_list_ordered ================================================
     SQL action. You use the session entered. Function returns specific rows of the DB table defined by <row_obj>.
     Raws are selected if their value of <filterkey> is included in <filtervalue_list>.

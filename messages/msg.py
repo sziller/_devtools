@@ -4,6 +4,7 @@ by Sziller"""
 from pydantic import BaseModel
 from typing import Any
 
+
 class MsgObject:
     """=== Class name: MsgObject ====================================================================================
     Two way communication Object between Server and Engine, Server and Subservers
