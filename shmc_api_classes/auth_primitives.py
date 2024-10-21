@@ -9,8 +9,8 @@ from pydantic import BaseModel
 from fastapi import Depends, HTTPException, status
 from jose import jwt, JWTError
 from fastapi.security import OAuth2PasswordBearer
-from sql_access import sql_interface as SQLi
-from shmc_sqlBases.sql_baseUser import User as sqlUser
+from sql_access import sql_interface as sqli
+from sql_bases.sqlbase_user.sqlbase_user import User as sqlUser
 
 load_dotenv()
 
@@ -29,8 +29,8 @@ def actual_db_state() -> list:
     """=== Function name: actual_db_state ==============================================================================
     Function returns the actual state of the Auth database in real time
     ============================================================================================== by Sziller ==="""
-    loc_session = SQLi.createSession(db_fullname=DB_FULLNAME_AUTH, tables=None, style=DB_STYLE_AUTH)
-    data = SQLi.QUERY_entire_table(ordered_by="timestamp", row_obj=sqlUser, session=loc_session)
+    loc_session = sqli.createSession(db_fullname=DB_FULLNAME_AUTH, tables=None, style=DB_STYLE_AUTH)
+    data = sqli.QUERY_entire_table(ordered_by="timestamp", row_obj=sqlUser, session=loc_session)
     loc_session.close()
     return data
     

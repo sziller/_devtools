@@ -176,9 +176,10 @@ def MODIFY_multiple_rows_by_column_by_dict(filterkey: str,
     session.commit()
 
 
-def QUERY_entire_table(ordered_by: str,
+def QUERY_entire_table(session: Session,
                        row_obj: Base,
-                       session: Session) -> list:
+                       ordered_by: (str, None) = None
+                       ) -> list:
     """=== Function name: QUERY_entire_table ===========================================================================
     SQL action. You use the session entered. Function returns the entire DB table defined by <row_obj>.
     :param ordered_by: str -
@@ -188,9 +189,13 @@ def QUERY_entire_table(ordered_by: str,
     ============================================================================================== by Sziller ==="""
     # Current Function Name
     # cfn = inspect.currentframe().f_code.co_name  # current class name
-    results = session.query(row_obj).order_by(ordered_by).all()
-    result_list = [_.return_as_dict() for _ in results]
-    session.commit()
+    table = row_obj.__table__ if hasattr(row_obj, '__table__') else row_obj
+    query = session.query(row_obj)
+    if ordered_by:
+        query = query.order_by(ordered_by)
+    results = query.all()
+    # Convert each result row into a dictionary using table's columns
+    result_list = [{column.name: getattr(row, column.name) for column in table.columns} for row in results]
     return result_list
 
 
@@ -213,9 +218,12 @@ def QUERY_rows_by_column_filtervalue_list_ordered(filterkey: str,
     ============================================================================================== by Sziller ==="""
     # Current Function Name
     # cfn = inspect.currentframe().f_code.co_name  # current class name
-    results = session.query(row_obj).filter(getattr(row_obj, filterkey).
-                                            in_(tuple(filtervalue_list))).order_by(ordered_by)
-    result_list = [_.return_as_dict() for _ in results]
+    query = session.query(row_obj).filter(getattr(row_obj, filterkey).in_(tuple(filtervalue_list)))
+    if ordered_by:
+        query = query.order_by(getattr(row_obj, ordered_by))
+    results = query.all()
+    # Convert the result rows into dictionaries
+    result_list = [{column.name: getattr(row, column.name) for column in row_obj.__table__.columns} for row in results]
     session.commit()
     return result_list
 

@@ -19,13 +19,13 @@ import time
 import logging
 import inspect
 from fastapi import APIRouter
-from messages import msg
-from api_classes.auth_primitives import *
-from shmc_sqlBases.sql_baseMeasurement import Measurement as sqlMeasurement
+from sz_messages import msg
+from shmc_api_classes.auth_primitives import *
+from sql_bases.sqlbase_measurement.sqlbase_measurement import Measurement as sqlMeasurement
 from sql_access import sql_interface as sqli
 
 # Setting up logger                                                                     -   START   -
-lg = logging.getLogger("shmc")
+lg = logging.getLogger()
 # Setting up logger                                                                     -   ENDED   -
 
 

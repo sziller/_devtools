@@ -4,7 +4,7 @@ by Sziller ==="""
 from sql_access.sql_interface import createSession
 from multiprocessing import Queue
 from sqlalchemy.orm import Session
-from messages.msg import InternalMsg
+from sz_messages.msg import InternalMsg
 import logging
 import inspect
 import os

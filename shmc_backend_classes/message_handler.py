@@ -41,7 +41,7 @@ import logging
 import inspect
 import zmq
 from multiprocessing import Queue
-from messages import msg
+from sz_messages import msg
 
 
 # LOGGING                                                                                   logging - START -
@@ -89,8 +89,8 @@ class MessageHandlerHub:
 
     def listen(self):
         """=== Method name: listen =====================================================================================
-        Continuously listens for incoming messages on the socket and processes them.
-        Method runs an infinite loop that waits for messages from the router via the socket.
+        Continuously listens for incoming sz_messages on the socket and processes them.
+        Method runs an infinite loop that waits for sz_messages from the router via the socket.
         Upon receiving a message, it forwards the message to the engine queue for processing.
         If msg requires sync., it waits for a response from the engine and forwards the response back through socket.
         This is done by method < handle_synced_message() >.
@@ -133,7 +133,7 @@ class MessageHandlerHub:
 
     def handle_synced_message(self, msg_hub_to_eng):
         """=== Method name: handle_synced_message ======================================================================
-        Handles synchronized messages by waiting for a response from the engine.
+        Handles synchronized sz_messages by waiting for a response from the engine.
         Method processes a synchronized message by putting it into the engine queue and waiting for a response.
         It waits for a specified timeout period, continuously checking the engine queue for a response with a matching
         timestamp. If a matching response is found within the timeout period, it returns the response. If no matching

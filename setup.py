@@ -10,14 +10,21 @@ from setuptools import setup
 setup(
     name='devtools',  # package name, used at pip or tar.
     version='0.0.0',  # version Nr.... whatever
-    packages=["api_classes", "backend_classes", "messages", "sql_access"],
+    packages=["shmc_api_classes", "shmc_backend_classes", "sz_messages", "sql_access", "sql_bases",
+              "sql_bases/sqlbase_measurement"],
     include_package_data=True,
     url="sziller.eu",  # if url is used at all
     license='MIT',
     author='sziller',
     author_email='szillerke@gmail.com',
     description='Development tool for different projects',
-    install_requires=["pyzmq"],  # ATTENTION! Wheel file needed, depending on environment
+    install_requires=[
+        "pyzmq",
+        "sqlalchemy",
+        "fastapi",
+        "python-jose",
+        "passlib"
+    ],  # ATTENTION! Wheel file needed, depending on environment
     dependency_links=[],  # if dependent on external projects
     classifiers=[
         'Programming Language :: Python :: 3',
