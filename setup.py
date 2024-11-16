@@ -2,7 +2,7 @@
 """
 setup function to be run when creating packages
 command to be typed in:
-python setup.py sdist # bdist_wheel
+python setup.py sdist bdist_wheel
 """
 
 from setuptools import setup
@@ -10,8 +10,13 @@ from setuptools import setup
 setup(
     name='devtools',  # package name, used at pip or tar.
     version='0.0.0',  # version Nr.... whatever
-    packages=["shmc_api_classes", "shmc_backend_classes", "sz_messages", "sql_access", "sql_bases",
-              "sql_bases/sqlbase_measurement"],
+    # ATTENTION: use different packages for use-cases
+    packages=["shmc_api_classes", "shmc_backend_classes", "sz_messages", "sql_access", "sql_bases", "log_tools",
+              "sql_bases/sqlbase_measurement",
+              "sql_bases/sqlbase_node",
+              "sql_bases/sqlbase_user",
+              "sql_bases/sqlbase_utxo",
+              ],
     include_package_data=True,
     url="sziller.eu",  # if url is used at all
     license='MIT',
