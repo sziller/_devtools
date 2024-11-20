@@ -21,7 +21,7 @@ def setup_logger(conf, logger_name: str = "sz_logger"):
     # Configures logging for both console and file outputs
     log_conf = {
         "version": 1,  # Indicates the schema version for the logging configuration dictionary format
-        "disable_existing_loggers": True,  # Keeps any existing loggers enabled and prevents them from being disabled
+        "disable_existing_loggers": False,  # Keeps any existing loggers enabled and prevents them from being disabled
         # Formatter configuration: defines the format for logged messages
         "formatters": {
             "default": {  # Named formatter, "default", that can be referenced by handlers
