@@ -4,13 +4,26 @@ by Sziller ==="""
 import os
 import logging
 from logging.config import dictConfig
-from time_format import TimeFormat as TiFo
+import time
+
+
+def timestamp(formatted: bool = True):
+    """
+    Returns the current timestamp.
+    :param formatted: If True, returns a formatted string in 'YYYYMMDD-hhmmss'. 
+                      If False, returns a float (UNIX time).
+    :return: Formatted string or float based on the 'formatted' parameter.
+    """
+    systime = time.time()
+    if formatted:
+        return time.strftime("%Y%m%d-%H%M%S", time.gmtime(systime))
+    return systime
 
 
 def setup_logger(conf, logger_name: str = "sz_logger"):
     """ Function to setup logger =======================================================================================
     ============================================================================================== by Sziller ==="""
-    log_ts = f"_{TiFo.timestamp()}" if conf.LOG_TIMED else ""
+    log_ts = f"_{timestamp()}" if conf.LOG_TIMED else ""
     log_fullfilename = conf.LOG_FILENAME.format(conf.LOG_PATH.format(conf.PATH_ROOT), log_ts)
 
     # Ensure the log directory exists

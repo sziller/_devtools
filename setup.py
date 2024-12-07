@@ -15,7 +15,9 @@ setup(
               "sql_bases/sqlbase_measurement",
               "sql_bases/sqlbase_node",
               "sql_bases/sqlbase_user",
+              "sql_bases/sqlbase_user_anonym",
               "sql_bases/sqlbase_utxo",
+              "sql_bases/sqlbase_dlc",
               ],
     include_package_data=True,
     url="sziller.eu",  # if url is used at all

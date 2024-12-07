@@ -37,7 +37,6 @@ class Measurement(Base):
                  mea_time: str,
                  timestamp: int = 0
                  ):
-        self.mea_hash: str = self.generate_id_hash()
         self.mea_type: str = mea_type
         self.mea_loc: str = mea_loc
         self.mea_val: float = mea_val
@@ -46,6 +45,7 @@ class Measurement(Base):
         self.timestamp: float = timestamp
         if self.timestamp == 0:
             self.timestamp = time.time()
+        # Generate dlc_id after all attributes are initialized
         self.mea_hash: str = self.generate_id_hash()
 
     def generate_id_hash(self):

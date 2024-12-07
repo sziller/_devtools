@@ -80,6 +80,9 @@ def ADD_rows_to_table(primary_key: str,
             newrow = row_obj.construct(d_in=data)
             if not session.query(row_obj).filter(getattr(row_obj, primary_key) == getattr(newrow, primary_key)).count():
                 session.add(newrow)
+                added_primary_keys.append(getattr(newrow, primary_key))
+            else:
+                pass
     session.commit()
     return added_primary_keys
 
