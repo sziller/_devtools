@@ -1,138 +1,165 @@
 import time
+import logging
 from sqlalchemy import Column, Integer, String, JSON, Float, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 from typing import Dict, Optional, Any
 from cryptography import HashFunctions as HaFu
+import hashlib  # Replace HaFu with hashlib if needed
 
 Base = declarative_base()
 
+# Setting up logger                                         logger                      -   START   -
+lg = logging.getLogger(__name__)
+# Setting up logger                                         logger                      -   ENDED   -
 
-class BaseDLC:
-    """Logical Base Class for shared fields."""
-    dlc_id: str                     = Column(String, primary_key=True)  # Unique ID for the DLC
-    temporary_contract_id: str      = Column(String)  # Temporary contract ID
-    initiator_email: str            = Column(String)  # Email of the initiator
-    initiator_pubkey: str           = Column(String)  # Public key of the initiator
-    oracle_id: str                  = Column(String)  # Identifier of the oracle
-    contract_terms: Dict[str, Any]  = Column(JSON)  # Contract terms in JSON format
-    created_at: float               = Column(Float)  # Timestamp for creation
-    updated_at: float               = Column(Float)  # Timestamp for the last update
 
+class DLC:
+    """Logical DLC for shared fields."""
+    dlc_id: str
+    tmp_cntr_id: str
+    ini_pubkey: str
+    ini_pubkey_funding: str
+    ini_payout_spk: str
+    ini_payout_serial_id: int
+    ini_change_spk: str
+    acc_pubkey: Optional[str]
+    acc_pubkey_funding: str
+    acc_payout_spk: str
+    acc_payout_serial_id: int
+    acc_change_spk: str
+    orcl_id: str
+    cntr_terms: Dict[str, Any]
+    cntr_flags: int
+    chain_hash: str
+    ini_signatures: Optional[Dict[str, Any]]
+    acc_signatures: Optional[Dict[str, Any]]
+    created_at: Optional[float]
+    updated_at: Optional[float]
+    timeout_at: Optional[float]
+    status: str
+    protocol_version: int
+    
     def __init__(
-        self,
-        temporary_contract_id: str,
-        initiator_email: str,
-        initiator_pubkey: str,
-        oracle_id: str,
-        contract_terms: Dict[str, Any],
-        created_at: Optional[float] = None,
-        updated_at: Optional[float] = None,
+            self,
+            dlc_id: str,
+            tmp_cntr_id: str,
+            ini_pubkey: str,
+            ini_pubkey_funding: str,
+            ini_payout_spk: str,
+            ini_payout_serial_id: int,
+            ini_change_spk: str,
+            acc_pubkey: Optional[str],
+            acc_pubkey_funding: str,
+            acc_payout_spk: str,
+            acc_payout_serial_id: int,
+            acc_change_spk: str,
+            orcl_id: str,
+            cntr_terms: Dict[str, Any],
+            cntr_flags: int,
+            chain_hash: str,
+            ini_signatures: Optional[Dict[str, Any]] = None,
+            acc_signatures: Optional[Dict[str, Any]] = None,
+            created_at: Optional[float] = None,
+            updated_at: Optional[float] = None,
+            timeout_at: Optional[float] = None,
+            status: str = "created",
+            protocol_version: int = 1
     ):
-        self.dlc_id = f"{temporary_contract_id}-{oracle_id}"  # Example ID generation
-        self.temporary_contract_id = temporary_contract_id
-        self.initiator_email = initiator_email
-        self.initiator_pubkey = initiator_pubkey
-        self.oracle_id = oracle_id
-        self.contract_terms = contract_terms
+        self.dlc_id = dlc_id
+        self.tmp_cntr_id = tmp_cntr_id
+        self.ini_pubkey = ini_pubkey
+        self.ini_pubkey_funding = ini_pubkey_funding
+        self.ini_payout_spk = ini_payout_spk
+        self.ini_payout_serial_id = ini_payout_serial_id
+        self.ini_change_spk = ini_change_spk
+        self.acc_pubkey = acc_pubkey
+        self.acc_pubkey_funding = acc_pubkey_funding
+        self.acc_payout_spk = acc_payout_spk
+        self.acc_payout_serial_id = acc_payout_serial_id
+        self.acc_change_spk = acc_change_spk
+        self.orcl_id = orcl_id
+        self.cntr_terms = cntr_terms
+        self.cntr_flags = cntr_flags
+        self.chain_hash = chain_hash
+        self.ini_signatures = ini_signatures or {}
+        self.acc_signatures = acc_signatures or {}
         self.created_at = created_at or time.time()
         self.updated_at = updated_at or time.time()
-
-
-class DLCP(BaseDLC):
-    """DLCP adds acceptor details, pubkeys, and status."""
-    acceptor_email: Optional[str] = Column(String, nullable=True)  # Email of the acceptor
-    acceptor_pubkey: Optional[str] = Column(String, nullable=True)  # Public key of the acceptor
-    status: str = Column(String, default="created")  # Status of the DLC
-    initiator_signatures: Optional[Dict[str, Any]] = Column(JSON, nullable=True)  # Initiator's signatures
-    acceptor_signatures: Optional[Dict[str, Any]] = Column(JSON, nullable=True)  # Acceptor's signatures
-
-    def __init__(
-        self,
-        temporary_contract_id: str,
-        initiator_email: str,
-        initiator_pubkey: str,
-        oracle_id: str,
-        contract_terms: Dict[str, Any],
-        status: str = "created",
-        acceptor_email: Optional[str] = None,
-        acceptor_pubkey: Optional[str] = None,
-        initiator_signatures: Optional[Dict[str, Any]] = None,
-        acceptor_signatures: Optional[Dict[str, Any]] = None,
-        created_at: Optional[float] = None,
-        updated_at: Optional[float] = None,
-    ):
-        super().__init__(
-            temporary_contract_id, initiator_email, initiator_pubkey, oracle_id, contract_terms, created_at, updated_at
-        )
-        self.status = status
-        self.acceptor_email = acceptor_email
-        self.acceptor_pubkey = acceptor_pubkey
-        self.initiator_signatures = initiator_signatures or {}
-        self.acceptor_signatures = acceptor_signatures or {}
-
-
-class LendBorrowProduct(DLCP, Base):
-    """Database Table for the fully extended Lend-Borrow Product."""
-    __tablename__ = "lend_borrow_products"
-
-    loan_amount: float = Column(Float, nullable=False)  # Loan amount
-    collateral_percent: float = Column(Float, nullable=False)  # Collateral percentage
-    duration: int = Column(Integer, nullable=False)  # Duration in days
-    funding_inputs: Optional[Dict[str, Any]] = Column(JSON, nullable=True)  # Funding inputs
-    funding_txid: Optional[str] = Column(String, nullable=True)  # Funding transaction ID
-    outcome_txid: Optional[str] = Column(String, nullable=True)  # Outcome transaction ID
-    timeout_at: Optional[float] = Column(Float, nullable=True)  # Timeout timestamp
-
-    def __init__(
-        self,
-        temporary_contract_id: str,
-        initiator_email: str,
-        initiator_pubkey: str,
-        oracle_id: str,
-        contract_terms: Dict[str, Any],
-        loan_amount: float,
-        collateral_percent: float,
-        duration: int,
-        status: str = "created",
-        acceptor_email: Optional[str] = None,
-        acceptor_pubkey: Optional[str] = None,
-        initiator_signatures: Optional[Dict[str, Any]] = None,
-        acceptor_signatures: Optional[Dict[str, Any]] = None,
-        funding_inputs: Optional[Dict[str, Any]] = None,
-        funding_txid: Optional[str] = None,
-        outcome_txid: Optional[str] = None,
-        timeout_at: Optional[float] = None,
-        created_at: Optional[float] = None,
-        updated_at: Optional[float] = None,
-    ):
-        super().__init__(
-            temporary_contract_id,
-            initiator_email,
-            initiator_pubkey,
-            oracle_id,
-            contract_terms,
-            status,
-            acceptor_email,
-            acceptor_pubkey,
-            initiator_signatures,
-            acceptor_signatures,
-            created_at,
-            updated_at,
-        )
-        self.loan_amount = loan_amount
-        self.collateral_percent = collateral_percent
-        self.duration = duration
-        self.funding_inputs = funding_inputs or {}
-        self.funding_txid = funding_txid
-        self.outcome_txid = outcome_txid
         self.timeout_at = timeout_at
-    
-    def generate_id_hash(self):
+        self.status = status
+        self.protocol_version = protocol_version
+
+
+class DLCP(DLC):
+    """DLCP adds acceptor details, pubkeys, and status."""
+    ini_email: str
+    acc_email: Optional[str]
+    outcome_time: Optional[float]
+
+    def __init__(self,
+                 ini_email: str,
+                 acc_email: Optional[str] = None,
+                 outcome_time: Optional[float] = None,
+                 *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.ini_email = ini_email
+        self.acc_email = acc_email
+        self.outcome_time = outcome_time
+
+
+class LendBorrowBTCUSD_Product(DLCP, Base):
+    """Database Table for the fully extended Lend-Borrow Product."""
+    __tablename__ = "lb_btcusd_products"
+
+    dlc_id                  = Column("dlc_id",                  String, primary_key=True)
+    tmp_cntr_id             = Column("tmp_cntr_id",             String)
+    ini_pubkey              = Column("ini_pubkey",              String)
+    ini_pubkey_funding      = Column("ini_pubkey_funding",      String,     nullable=False)
+    ini_payout_spk          = Column("ini_payout_spk",          String,     nullable=False)
+    ini_payout_serial_id    = Column("ini_payout_serial_id",    Integer,    nullable=False)
+    ini_change_spk          = Column("ini_change_spk",          String,     nullable=True)
+    ini_change_serial_id    = Column("ini_change_serial_id",    Integer,    nullable=True)
+    acc_pubkey              = Column("acc_pubkey",              String,     nullable=True)
+    acc_pubkey_funding      = Column("acc_pubkey_funding",      String,     nullable=False)
+    acc_payout_spk          = Column("acc_payout_spk",          String,     nullable=True)
+    acc_payout_serial_id    = Column("acc_payout_serial_id",    Integer,    nullable=True)
+    acc_change_spk          = Column("acc_change_spk",          String,     nullable=True)
+    acc_change_serial_id    = Column("acc_change_serial_id",    Integer,    nullable=True)
+    orcl_id                 = Column("orcl_id",                 String)
+    cntr_terms              = Column("cntr_terms",              JSON)
+    cntr_flags              = Column("cntr_flags",              Integer,    nullable=False, default=0)
+    chain_hash              = Column("chain_hash",              String(64), nullable=False)
+    ini_signatures          = Column("ini_signatures",          JSON,       nullable=True)
+    acc_signatures          = Column("acc_signatures",          JSON,       nullable=True)
+    created_at              = Column("created_at",              Float,                      default=time.time)
+    updated_at              = Column("updated_at",              Float,                      default=time.time)
+    timeout_at              = Column("timeout_at",              Float,      nullable=True)
+    status                  = Column("status",                  String,     nullable=False, default="created")
+    protocol_version        = Column("protocol_version",        Integer,    nullable=False, default=1)
+
+    ini_email               = Column("ini_email",               String)
+    acc_email               = Column("acc_email",               String,     nullable=True)
+    outcome_time            = Column("outcome_time",            Float,      nullable=True)  # Time of resolution
+
+    loan_amount             = Column("loan_amount",             Float,      nullable=False)  # Loan amount
+    collateral_percent      = Column("collateral_percent",      Float,      nullable=False)  # Collateral %
+    duration                = Column("duration",                Integer,    nullable=False)  # Duration in days
+    funding_inputs          = Column("funding_inputs",          JSON,       nullable=True)  # Funding inputs
+    funding_txid            = Column("funding_txid",            String,     nullable=True)  # Funding TX ID
+    outcome_txid            = Column("outcome_txid",            String,     nullable=True)  # Outcome TX ID
+
+    def generate_id_hash(self) -> str:
         """Function generates a unique ID for the DLC row"""
-        return HaFu.single_sha256_byte2byte(bytes(
-            f"{self.temporary_contract_id}{self.created_at}",
+        new_hash = HaFu.single_sha256_byte2byte(bytes(
+            f"{self.tmp_cntr_id}{self.created_at}",
             "utf-8")).hex()[:16]
-    
+        lg.warning(f"hash OLD  : {new_hash}")
+        new_hash = hashlib.sha256(
+            f"{self.tmp_cntr_id}{self.created_at}".encode("utf-8")
+        ).hexdigest()[:16]
+        lg.warning(f"hash NEW  : {new_hash}")
+        return new_hash
+
     def return_as_dict(self) -> Dict[str, Any]:
         """Returns the instance as a dictionary."""
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
@@ -143,7 +170,7 @@ class LendBorrowProduct(DLCP, Base):
             if hasattr(self, key):
                 setattr(self, key, value)
         self.updated_at = time.time()  # Automatically update the timestamp
-    
+
     def calculate_collateral(self) -> float:
         """Calculates the collateral amount based on loan and collateral percentage."""
         return self.loan_amount * (self.collateral_percent / 100)
@@ -152,9 +179,15 @@ class LendBorrowProduct(DLCP, Base):
         return (f"LendBorrowProduct | DLC ID: {self.dlc_id} | Status: {self.status} | "
                 f"Loan: {self.loan_amount}, Collateral: {self.collateral_percent}%, "
                 f"Duration: {self.duration} days")
-    
+
     @classmethod
-    def construct(cls, d_in):
-        """Constructs an instance of the class from a dictionary"""
-        return cls(**d_in)
+    def construct(cls, d_in: Dict[str, Any]) -> "LendBorrowBTCUSD_Product":
+        """Constructs an instance of the class from a dictionary."""
+        valid_keys = {c.name for c in cls.__table__.columns}
+        filtered_data = {k: v for k, v in d_in.items() if k in valid_keys}
+        if set(d_in.keys()) - valid_keys:
+            msg = f"Invalid keys in input: {set(d_in.keys()) - valid_keys}"
+            lg.critical(msg)
+            raise ValueError(msg)
+        return cls(**filtered_data)
     
