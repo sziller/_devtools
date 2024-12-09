@@ -75,6 +75,8 @@ class DLC:
             ini_fund_output_ser_id: Optional[int] = None,
             ini_num_funding_inputs: Optional[int] = None,
             ini_collateral_sats: Optional[int] = None,
+            ini_signatures: Optional[Dict[str, Any]] = None,
+            
             acc_pubkey: Optional[str] = None,
             acc_pubkey_funding: Optional[str] = None,
             acc_payout_spk: Optional[str] = None,
@@ -84,20 +86,26 @@ class DLC:
             acc_fund_output_ser_id: Optional[int] = None,
             acc_num_funding_inputs: Optional[int] = None,
             acc_collateral_sats: Optional[int] = None,
+            acc_signatures: Optional[Dict[str, Any]] = None,
+            
             orcl_id: Optional[str] = None,
             cntr_terms: Dict[str, Any] = None,
             feerate_per_vb: Optional[int] = None,
             cet_locktime: Optional[int] = None,
             refund_locktime: Optional[int] = None,
-            ini_signatures: Optional[Dict[str, Any]] = None,
-            acc_signatures: Optional[Dict[str, Any]] = None,
+            
             offered_at: Optional[float] = None,
-            timeout_at: Optional[float] = None,
+            timeout_at: Optional[float] = None
     ):
         self.dlc_id = dlc_id
         self.tmp_cntr_id = tmp_cntr_id
         self.created_at = created_at or time.time()
         self.updated_at = updated_at or time.time()
+        self.status = status
+        self.protocol_version = protocol_version
+        self.chain_hash = chain_hash
+        self.cntr_flags = cntr_flags
+        
         self.ini_pubkey = ini_pubkey
         self.ini_pubkey_funding = ini_pubkey_funding
         self.ini_payout_spk = ini_payout_spk
@@ -107,6 +115,8 @@ class DLC:
         self.ini_fund_output_ser_id = ini_fund_output_ser_id
         self.ini_num_funding_inputs = ini_num_funding_inputs
         self.ini_collateral_sats = ini_collateral_sats
+        self.ini_signatures = ini_signatures or {}
+        
         self.acc_pubkey = acc_pubkey
         self.acc_pubkey_funding = acc_pubkey_funding
         self.acc_payout_spk = acc_payout_spk
@@ -116,20 +126,17 @@ class DLC:
         self.acc_fund_output_ser_id = acc_fund_output_ser_id
         self.acc_num_funding_inputs = acc_num_funding_inputs
         self.acc_collateral_sats = acc_collateral_sats
+        self.acc_signatures = acc_signatures or {}
+        
         self.orcl_id = orcl_id
         self.cntr_terms = cntr_terms
-        self.cntr_flags = cntr_flags
         self.feerate_per_vb = feerate_per_vb
         self.cet_locktime = cet_locktime
         self.refund_locktime = refund_locktime
-        self.ini_signatures = ini_signatures or {}
-        self.acc_signatures = acc_signatures or {}
+        
         self.offered_at = offered_at
         self.timeout_at = timeout_at
-        self.status = status
-        self.chain_hash = chain_hash
-        self.protocol_version = protocol_version
-
+        
 
 class DLCP(DLC):
     """DLCP adds acceptor details, pubkeys, and status."""
@@ -160,7 +167,6 @@ class LendBorrowBTCUSD_Product(DLCP, Base):
     protocol_version        = Column("protocol_version",        Integer,    nullable=False, default=1)
     chain_hash              = Column("chain_hash",              String(64), nullable=False,
                                      default="000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f")
-    
     cntr_flags              = Column("cntr_flags", Integer, nullable=False, default=0)
     
     ini_pubkey              = Column("ini_pubkey",              String,     nullable=True)
