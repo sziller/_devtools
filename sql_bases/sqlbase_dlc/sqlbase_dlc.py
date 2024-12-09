@@ -159,10 +159,10 @@ class LendBorrowBTCUSD_Product(DLCP, Base):
     """Database Table for the fully extended Lend-Borrow Product."""
     __tablename__ = "lb_btcusd_products"
 
-    dlc_id                  = Column("dlc_id",                  String,     nullable=True,  primary_key=True)
+    dlc_id                  = Column("dlc_id",                  String,     nullable=False, primary_key=True)
     tmp_cntr_id             = Column("tmp_cntr_id",             String,     nullable=False)
-    created_at              = Column("created_at",              Float,      nullable=False, default=time.time)
-    updated_at              = Column("updated_at",              Float,      nullable=False, default=time.time)
+    created_at              = Column("created_at",              Float,      nullable=False, default=lambda: time.time())
+    updated_at              = Column("updated_at",              Float,      nullable=False, default=lambda: time.time())
     status                  = Column("status",                  String,     nullable=False, default="created")
     protocol_version        = Column("protocol_version",        Integer,    nullable=False, default=1)
     chain_hash              = Column("chain_hash",              String(64), nullable=False,
@@ -178,7 +178,7 @@ class LendBorrowBTCUSD_Product(DLCP, Base):
     ini_fund_output_ser_id  = Column("ini_fund_output_ser_id",  Integer,    nullable=True)
     ini_num_funding_inputs  = Column("ini_num_funding_inputs",  Integer,    nullable=True)
     ini_collateral_sats     = Column("ini_collateral_sats",     Integer,    nullable=True)
-    ini_signatures          = Column("ini_signatures",          JSON,       nullable=True)
+    ini_signatures          = Column("ini_signatures",          JSON,       nullable=True, default=dict)
     
     acc_pubkey              = Column("acc_pubkey",              String,     nullable=True)
     acc_pubkey_funding      = Column("acc_pubkey_funding",      String,     nullable=True)
@@ -189,7 +189,7 @@ class LendBorrowBTCUSD_Product(DLCP, Base):
     acc_fund_output_ser_id  = Column("acc_fund_output_ser_id",  Integer,    nullable=True)
     acc_num_funding_inputs  = Column("acc_num_funding_inputs",  Integer,    nullable=True)
     acc_collateral_sats     = Column("acc_collateral_sats",     Integer,    nullable=True)
-    acc_signatures          = Column("acc_signatures",          JSON,       nullable=True)
+    acc_signatures          = Column("acc_signatures",          JSON,       nullable=True, default=dict)
     
     orcl_id                 = Column("orcl_id",                 String,     nullable=True)
     cntr_terms              = Column("cntr_terms",              JSON,       nullable=True)
@@ -202,12 +202,12 @@ class LendBorrowBTCUSD_Product(DLCP, Base):
     
     ini_email               = Column("ini_email",               String,     nullable=True)
     acc_email               = Column("acc_email",               String,     nullable=True)
-    outcome_at              = Column("outcome_at",              Float,      nullable=True)  # Time of resolution
+    outcome_at              = Column("outcome_at",              Float,      nullable=True)  
 
     loan_amount             = Column("loan_amount",             Float,      nullable=True)  # Loan amount
     collateral_percent      = Column("collateral_percent",      Float,      nullable=True)  # Collateral %
     duration                = Column("duration",                Integer,    nullable=True)  # Duration in days
-    funding_inputs          = Column("funding_inputs",          JSON,       nullable=True)  # Funding inputs
+    funding_inputs          = Column("funding_inputs",          JSON,       nullable=True, default=dict)
     funding_txid            = Column("funding_txid",            String,     nullable=True)  # Funding TX ID
     outcome_txid            = Column("outcome_txid",            String,     nullable=True)  # Outcome TX ID
 
