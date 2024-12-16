@@ -1,6 +1,6 @@
 import time
 import logging
-from sqlalchemy import Column, Integer, String, JSON, Float, DateTime
+from sqlalchemy import Column, Integer, String, JSON, Float, DateTime, Boolean
 from sqlalchemy.ext.declarative import declarative_base
 from typing import Dict, Optional, Any
 from cryptography import HashFunctions as HaFu
@@ -57,14 +57,14 @@ class DLC:
     
     def __init__(
             self,
-            dlc_id: Optional[str],
             tmp_cntr_id: str,
-            created_at: Optional[float],
-            updated_at: Optional[float],
+            created_at: Optional[float] = None,
+            updated_at: Optional[float] = None,
             status: str = "created",
             protocol_version: int = 1,
             chain_hash: str = "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f",
             cntr_flags: int = 0,
+            dlc_id: Optional[str] = None,
             
             ini_pubkey: Optional[str] = None,
             ini_pubkey_funding: Optional[str] = None,
@@ -95,8 +95,11 @@ class DLC:
             refund_locktime: Optional[int] = None,
             
             offered_at: Optional[float] = None,
-            timeout_at: Optional[float] = None
+            timeout_at: Optional[float] = None,
+            *args, **kwargs
     ):
+        if not tmp_cntr_id:
+            raise ValueError("tmp_cntr_id is required and cannot be empty.")
         self.dlc_id = dlc_id
         self.tmp_cntr_id = tmp_cntr_id
         self.created_at = created_at or time.time()
@@ -140,16 +143,19 @@ class DLC:
 
 class DLCP(DLC):
     """DLCP adds acceptor details, pubkeys, and status."""
+    product_id: str
     ini_email: Optional[str]
     acc_email: Optional[str]
     outcome_at: Optional[float]
 
     def __init__(self,
+                 product_id: str = "dlcp",
                  ini_email: Optional[str] = None,
                  acc_email: Optional[str] = None,
                  outcome_at: Optional[float] = None,
                  *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.product_id = product_id
         self.ini_email = ini_email
         self.acc_email = acc_email
         self.outcome_at = outcome_at
@@ -200,24 +206,63 @@ class LendBorrowBTCUSD_Product(DLCP, Base):
     offered_at              = Column("offered_at",              Float,      nullable=True)
     timeout_at              = Column("timeout_at",              Float,      nullable=True)
     
+    product_id              = Column("product_id",              String,     nullable=False, default="dlcp")
     ini_email               = Column("ini_email",               String,     nullable=True)
     acc_email               = Column("acc_email",               String,     nullable=True)
-    outcome_at              = Column("outcome_at",              Float,      nullable=True)  
-
-    loan_amount             = Column("loan_amount",             Float,      nullable=True)  # Loan amount
-    collateral_percent      = Column("collateral_percent",      Float,      nullable=True)  # Collateral %
+    outcome_at              = Column("outcome_at",              Float,      nullable=True)
+    
+    ini_role                = Column("ini_role",                String,     nullable=True)  # 0: lend 1: borrow
+    loan_sats               = Column("loan_sats",               Integer,    nullable=True)  # Loan amount
+    interest                = Column("interest",                Float,      nullable=True)
     duration                = Column("duration",                Integer,    nullable=True)  # Duration in days
+    ear                     = Column("ear",                     Float,      nullable=True)
     funding_inputs          = Column("funding_inputs",          JSON,       nullable=True, default=dict)
     funding_txid            = Column("funding_txid",            String,     nullable=True)  # Funding TX ID
     outcome_txid            = Column("outcome_txid",            String,     nullable=True)  # Outcome TX ID
+    timer_a_start           = Column("timer_a_start",           Float,      nullable=True)  # Timestamp for Timer_A
+    timer_b_start           = Column("timer_b_start",           Float,      nullable=True)  # Timestamp for Timer_B
+    timer_b_duration        = Column("timer_b_duration",        Integer,    nullable=False, default=300)  # Duration in seconds (default: 5 minutes)
+    timer_b_active          = Column("timer_b_active",          Boolean,    nullable=False, default=True)  # Indicates if Timer_B is active
 
-    def __init__(self, tmp_cntr_id: str, dlc_id: Optional[str] = None, *args, **kwargs):
+    def __init__(self,
+                 tmp_cntr_id: str,
+                 product_id: str,
+                 ini_role: Optional[str]                    = None,
+                 loan_sats: Optional[int]                   = None,
+                 interest: Optional[float]                  = None,
+                 duration: Optional[int]                    = None,
+                 ear: Optional[float]                       = None,
+                 funding_inputs: Optional[Dict[str, Any]]   = None,
+                 funding_txid: Optional[str]                = None,
+                 outcome_txid: Optional[str]                = None,
+                 timer_a_start: Optional[float]             = None,  # Timestamp for Timer_A
+                 timer_b_start: Optional[float]             = None,  # Timestamp for Timer_B
+                 timer_b_duration: int                      = 300,
+                 timer_b_active: bool                       = True,
+                 *args,
+                 **kwargs):
         """
         Override the constructor to ensure dlc_id gets the value of tmp_cntr_id if not provided.
         """
+        # mandatory argument passing
+        kwargs["tmp_cntr_id"]       = tmp_cntr_id
+        kwargs["dlc_id"]            = tmp_cntr_id  # Assign tmp_cntr_id to dlc_id if dlc_id is not explicitly provided
+        kwargs["product_id"]        = product_id 
         super().__init__(*args, **kwargs)
-        self.tmp_cntr_id = tmp_cntr_id
-        self.dlc_id = dlc_id or tmp_cntr_id  # Assign tmp_cntr_id to dlc_id if dlc_id is not explicitly provided
+        
+        # Initialize LendBorrowBTCUSD_Product-specific attributes
+        self.ini_role           = ini_role
+        self.loan_sats          = loan_sats
+        self.interest           = interest
+        self.duration           = duration
+        self.ear                = ear
+        self.funding_inputs     = funding_inputs
+        self.funding_txid       = funding_txid
+        self.outcome_txid       = outcome_txid
+        self.timer_a_start      = timer_a_start
+        self.timer_b_start      = timer_b_start
+        self.timer_b_duration   = timer_b_duration
+        self.timer_b_active     = timer_b_active
 
     def generate_id_hash(self) -> str:
         """Function generates a unique ID for the DLC row"""
@@ -253,12 +298,16 @@ class LendBorrowBTCUSD_Product(DLCP, Base):
 
     @classmethod
     def construct(cls, d_in: Dict[str, Any]) -> "LendBorrowBTCUSD_Product":
-        """Constructs an instance of the class from a dictionary."""
+        """Construct an instance from a dictionary."""
         valid_keys = {c.name for c in cls.__table__.columns}
         filtered_data = {k: v for k, v in d_in.items() if k in valid_keys}
-        if set(d_in.keys()) - valid_keys:
-            msg = f"Invalid keys in input: {set(d_in.keys()) - valid_keys}"
-            lg.critical(msg)
-            raise ValueError(msg)
+
+        # Enforce tmp_cntr_id presence
+        if "tmp_cntr_id" not in filtered_data or not filtered_data["tmp_cntr_id"]:
+            raise ValueError("Missing required field: tmp_cntr_id")
+
+        # Derive dlc_id from tmp_cntr_id
+        filtered_data["dlc_id"] = filtered_data["tmp_cntr_id"]
+
         return cls(**filtered_data)
     

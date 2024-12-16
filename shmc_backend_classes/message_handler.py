@@ -45,7 +45,7 @@ from sz_messages import msg
 
 
 # LOGGING                                                                                   logging - START -
-lg = logging.getLogger()
+lg = logging.getLogger(__name__)
 # LOGGING                                                                                   logging - ENDED -
 
 
