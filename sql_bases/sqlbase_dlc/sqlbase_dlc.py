@@ -53,18 +53,19 @@ class DLC:
     refund_locktime: Optional[int]
     
     offered_at: Optional[float]
-    timeout_at: Optional[float]
+    attest_at: Optional[float]
+    refund_at: Optional[float]
     
     def __init__(
             self,
-            tmp_cntr_id: str,
-            created_at: Optional[float] = None,
-            updated_at: Optional[float] = None,
-            status: str = "created",
-            protocol_version: int = 1,
-            chain_hash: str = "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f",
-            cntr_flags: int = 0,
-            dlc_id: Optional[str] = None,
+            tmp_cntr_id: str,                       # created
+            created_at: Optional[float] = None,     # created
+            updated_at: Optional[float] = None,     #               ALWAYS
+            status: str = "created",                #               ALWAYS
+            protocol_version: int = 1,              # created
+            chain_hash: str = "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f",   # created, offer_dlc
+            cntr_flags: int = 0,                                                                    # created, offer_dlc
+            dlc_id: Optional[str] = None,                                                           # created, offer_dlc
             
             ini_pubkey: Optional[str] = None,
             ini_pubkey_funding: Optional[str] = None,
@@ -88,14 +89,15 @@ class DLC:
             acc_collateral_sats: Optional[int] = None,
             acc_signatures: Optional[Dict[str, Any]] = None,
             
-            orcl_id: Optional[str] = None,
+            orcl_id: Optional[str] = None,                                                          # offer_, offer_dlc
             cntr_terms: Dict[str, Any] = None,
             feerate_per_vb: Optional[int] = None,
             cet_locktime: Optional[int] = None,
             refund_locktime: Optional[int] = None,
             
             offered_at: Optional[float] = None,
-            timeout_at: Optional[float] = None,
+            attest_at: Optional[float] = None,
+            refund_at: Optional[float] = None,
             *args, **kwargs
     ):
         if not tmp_cntr_id:
@@ -138,7 +140,8 @@ class DLC:
         self.refund_locktime = refund_locktime
         
         self.offered_at = offered_at
-        self.timeout_at = timeout_at
+        self.attest_at = attest_at
+        self.refund_at = refund_at
         
 
 class DLCP(DLC):
@@ -146,19 +149,16 @@ class DLCP(DLC):
     product_id: str
     ini_email: Optional[str]
     acc_email: Optional[str]
-    outcome_at: Optional[float]
 
     def __init__(self,
                  product_id: str = "dlcp",
                  ini_email: Optional[str] = None,
                  acc_email: Optional[str] = None,
-                 outcome_at: Optional[float] = None,
                  *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.product_id = product_id
         self.ini_email = ini_email
         self.acc_email = acc_email
-        self.outcome_at = outcome_at
 
 
 class LendBorrowBTCUSD_Product(DLCP, Base):
@@ -204,18 +204,18 @@ class LendBorrowBTCUSD_Product(DLCP, Base):
     refund_locktime         = Column("refund_locktime",         Integer,    nullable=True)
 
     offered_at              = Column("offered_at",              Float,      nullable=True)
-    timeout_at              = Column("timeout_at",              Float,      nullable=True)
+    attest_at               = Column("attest_at",               Float,      nullable=True)
+    refund_at               = Column("refund_at",               Float,      nullable=True)
     
-    product_id              = Column("product_id",              String,     nullable=False, default="dlcp")
+    product_id              = Column("product_id",              String,     nullable=False)
     ini_email               = Column("ini_email",               String,     nullable=True)
     acc_email               = Column("acc_email",               String,     nullable=True)
-    outcome_at              = Column("outcome_at",              Float,      nullable=True)
     
     ini_role                = Column("ini_role",                String,     nullable=True)  # 0: lend 1: borrow
     loan_sats               = Column("loan_sats",               Integer,    nullable=True)  # Loan amount
-    interest                = Column("interest",                Float,      nullable=True)
     duration                = Column("duration",                Integer,    nullable=True)  # Duration in days
-    ear                     = Column("ear",                     Float,      nullable=True)
+    interest                = Column("interest",                Float,      nullable=True)
+    interest_ear            = Column("interest_ear",            Float,      nullable=True)
     funding_inputs          = Column("funding_inputs",          JSON,       nullable=True, default=dict)
     funding_txid            = Column("funding_txid",            String,     nullable=True)  # Funding TX ID
     outcome_txid            = Column("outcome_txid",            String,     nullable=True)  # Outcome TX ID
@@ -229,9 +229,9 @@ class LendBorrowBTCUSD_Product(DLCP, Base):
                  product_id: str,
                  ini_role: Optional[str]                    = None,
                  loan_sats: Optional[int]                   = None,
-                 interest: Optional[float]                  = None,
                  duration: Optional[int]                    = None,
-                 ear: Optional[float]                       = None,
+                 interest: Optional[float]                  = None,
+                 interest_ear: Optional[float]              = None,
                  funding_inputs: Optional[Dict[str, Any]]   = None,
                  funding_txid: Optional[str]                = None,
                  outcome_txid: Optional[str]                = None,
@@ -253,9 +253,9 @@ class LendBorrowBTCUSD_Product(DLCP, Base):
         # Initialize LendBorrowBTCUSD_Product-specific attributes
         self.ini_role           = ini_role
         self.loan_sats          = loan_sats
-        self.interest           = interest
         self.duration           = duration
-        self.ear                = ear
+        self.interest           = interest
+        self.interest_ear       = interest_ear
         self.funding_inputs     = funding_inputs
         self.funding_txid       = funding_txid
         self.outcome_txid       = outcome_txid
@@ -287,13 +287,9 @@ class LendBorrowBTCUSD_Product(DLCP, Base):
                 setattr(self, key, value)
         self.updated_at = time.time()  # Automatically update the timestamp
 
-    def calculate_collateral(self) -> float:
-        """Calculates the collateral amount based on loan and collateral percentage."""
-        return self.loan_amount * (self.collateral_percent / 100)
-
     def __repr__(self) -> str:
         return (f"LendBorrowProduct | DLC ID: {self.dlc_id} | Status: {self.status} | "
-                f"Loan: {self.loan_amount}, Collateral: {self.collateral_percent}%, "
+                f"Loan: {self.loan_sats}, Collateral: {self.acc_collateral_sats}, "
                 f"Duration: {self.duration} days")
 
     @classmethod

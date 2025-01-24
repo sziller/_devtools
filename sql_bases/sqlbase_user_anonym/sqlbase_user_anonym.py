@@ -23,6 +23,7 @@ class UserAnonym(Base):
     email: str              = Column("email", String, primary_key=True)
     psswd_hsh: str          = Column("psswd_hsh", String)
     auth_code: int          = Column("auth_code", Integer)
+    xpub: str               = Column("xpub", String)
     pubkey: str             = Column("pubkey", String)
     uuid: str               = Column("uuid", String)
     timestamp: float        = Column("timestamp", Float)
@@ -32,6 +33,7 @@ class UserAnonym(Base):
                  email: str,
                  psswd_hsh: str,
                  auth_code: int     = 0,
+                 xpub: str          = "",
                  pubkey: str        = "",
                  uuid: str          = "",
                  timestamp: float   = 0.0,
@@ -40,6 +42,7 @@ class UserAnonym(Base):
         self.email: str         = email
         self.psswd_hsh: str     = psswd_hsh
         self.auth_code: int     = auth_code
+        self.xpub: str          = xpub
         self.pubkey: str        = pubkey
         self.uuid: str          = uuid
         self.timestamp: float   = timestamp

@@ -145,9 +145,9 @@ class MessageHandlerHub:
         msg_eng_to_hub = msg.ExternalResponseMsg(payload=msg_hub_to_eng.payload,
                                                  message="timed out",
                                                  timestamp=msg_hub_to_eng.timestamp)
-        timeout_at = time.time() + self.hcdd["timeout"]
+        refund_at = time.time() + self.hcdd["timeout"]
         resp_received = False
-        while (not resp_received) and (time.time() < timeout_at):  # checking until valid response of timed-out
+        while (not resp_received) and (time.time() < refund_at):  # checking until valid response of timed-out
             if not self.queue_eng_to_hub.empty():  # if queue in not empty...
                 msg_read = self.queue_eng_to_hub.get()
                 if msg_read.timestamp == msg_hub_to_eng.timestamp:
