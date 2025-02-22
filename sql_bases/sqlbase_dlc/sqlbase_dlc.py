@@ -213,9 +213,12 @@ class LendBorrowBTCUSD_Product(DLCP, Base):
     
     ini_role                = Column("ini_role",                String,     nullable=True)  # 0: lend 1: borrow
     loan_sats               = Column("loan_sats",               Integer,    nullable=True)  # Loan amount
+    collateral_sats         = Column("collateral_sats",         Integer,    nullable=True)  # Collateral amount
     duration                = Column("duration",                Integer,    nullable=True)  # Duration in days
     interest                = Column("interest",                Float,      nullable=True)
     interest_ear            = Column("interest_ear",            Float,      nullable=True)
+    interest_b              = Column("interest_b",              Float,      nullable=True)
+    interest_b_ear          = Column("interest_b_ear",          Float,      nullable=True)
     funding_inputs          = Column("funding_inputs",          JSON,       nullable=True, default=dict)
     funding_txid            = Column("funding_txid",            String,     nullable=True)  # Funding TX ID
     outcome_txid            = Column("outcome_txid",            String,     nullable=True)  # Outcome TX ID
@@ -229,9 +232,12 @@ class LendBorrowBTCUSD_Product(DLCP, Base):
                  product_id: str,
                  ini_role: Optional[str]                    = None,
                  loan_sats: Optional[int]                   = None,
+                 collateral_sats: Optional[int]             = None,
                  duration: Optional[int]                    = None,
                  interest: Optional[float]                  = None,
                  interest_ear: Optional[float]              = None,
+                 interest_b: Optional[float]                = None,
+                 interest_b_ear: Optional[float]            = None,
                  funding_inputs: Optional[Dict[str, Any]]   = None,
                  funding_txid: Optional[str]                = None,
                  outcome_txid: Optional[str]                = None,
@@ -247,15 +253,18 @@ class LendBorrowBTCUSD_Product(DLCP, Base):
         # mandatory argument passing
         kwargs["tmp_cntr_id"]       = tmp_cntr_id
         kwargs["dlc_id"]            = tmp_cntr_id  # Assign tmp_cntr_id to dlc_id if dlc_id is not explicitly provided
-        kwargs["product_id"]        = product_id 
+        kwargs["product_id"]        = product_id
         super().__init__(*args, **kwargs)
         
         # Initialize LendBorrowBTCUSD_Product-specific attributes
         self.ini_role           = ini_role
         self.loan_sats          = loan_sats
+        self.collateral_sats    = collateral_sats
         self.duration           = duration
         self.interest           = interest
         self.interest_ear       = interest_ear
+        self.interest_b         = interest_b
+        self.interest_b_ear     = interest_b_ear
         self.funding_inputs     = funding_inputs
         self.funding_txid       = funding_txid
         self.outcome_txid       = outcome_txid

@@ -12,6 +12,7 @@ setup(
     version='0.0.0',  # version Nr.... whatever
     # ATTENTION: use different packages for use-cases
     packages=["shmc_api_classes", "shmc_backend_classes", "sz_messages", "sql_access", "sql_bases", "log_tools",
+              "email_service",
               "sql_bases/sqlbase_measurement",
               "sql_bases/sqlbase_node",
               "sql_bases/sqlbase_user",

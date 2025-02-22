@@ -1,0 +1,9 @@
+Hi {user}!
+This is a testmail!
+
+you received this form Sziller's Email server package as a test.
+Have a great Day!
+
+Yeah, and btw! Visit: {website}
+
+Sziller
