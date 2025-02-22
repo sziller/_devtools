@@ -87,7 +87,7 @@ class EmailSender:
 
     @staticmethod
     def _load_template(template_path: str, **kwargs: str) -> str:
-        """Loads and formats an email template from a file."""
+        """Loads and formats an email template from a file, auto-converting plaintext to HTML."""
         if not os.path.exists(template_path):
             lg.error(f"Template file not found: {template_path}")
             raise FileNotFoundError(f"Template file not found: {template_path}")
@@ -96,7 +96,14 @@ class EmailSender:
             template_content = file.read()
 
         try:
-            return template_content.format(**kwargs)
+            formatted_content = template_content.format(**kwargs)
+
+            # Auto-detect if it's plain text and convert to HTML
+            if "<html" not in formatted_content and "<body" not in formatted_content:
+                formatted_content = formatted_content.replace("\n", "<br>")  # Convert newlines to <br>
+                formatted_content = f"<html><body>{formatted_content}</body></html>"  # Wrap in HTML structure
+
+            return formatted_content
         except KeyError as e:
             lg.error(f"Missing placeholder value for: {e}")
             raise ValueError(f"Missing placeholder value for: {e}")
