@@ -212,8 +212,8 @@ class LendBorrowBTCUSD_Product(DLCP, Base):
     acc_email               = Column("acc_email",               String,     nullable=True)
     
     ini_role                = Column("ini_role",                String,     nullable=True)  # 0: lend 1: borrow
-    loan_sats               = Column("loan_sats",               Integer,    nullable=True)  # Loan amount
-    collateral_sats         = Column("collateral_sats",         Integer,    nullable=True)  # Collateral amount
+    # loan_sats               = Column("loan_sats",               Integer,    nullable=True)  # Loan amount
+    # collateral_sats         = Column("collateral_sats",         Integer,    nullable=True)  # Collateral amount
     duration                = Column("duration",                Integer,    nullable=True)  # Duration in days
     interest                = Column("interest",                Float,      nullable=True)
     interest_ear            = Column("interest_ear",            Float,      nullable=True)
@@ -231,8 +231,8 @@ class LendBorrowBTCUSD_Product(DLCP, Base):
                  tmp_cntr_id: str,
                  product_id: str,
                  ini_role: Optional[str]                    = None,
-                 loan_sats: Optional[int]                   = None,
-                 collateral_sats: Optional[int]             = None,
+                 # loan_sats: Optional[int]                   = None,
+                 # collateral_sats: Optional[int]             = None,
                  duration: Optional[int]                    = None,
                  interest: Optional[float]                  = None,
                  interest_ear: Optional[float]              = None,
@@ -258,8 +258,8 @@ class LendBorrowBTCUSD_Product(DLCP, Base):
         
         # Initialize LendBorrowBTCUSD_Product-specific attributes
         self.ini_role           = ini_role
-        self.loan_sats          = loan_sats
-        self.collateral_sats    = collateral_sats
+        # self.loan_sats          = loan_sats
+        # self.collateral_sats    = collateral_sats
         self.duration           = duration
         self.interest           = interest
         self.interest_ear       = interest_ear
@@ -298,7 +298,6 @@ class LendBorrowBTCUSD_Product(DLCP, Base):
 
     def __repr__(self) -> str:
         return (f"LendBorrowProduct | DLC ID: {self.dlc_id} | Status: {self.status} | "
-                f"Loan: {self.loan_sats}, Collateral: {self.acc_collateral_sats}, "
                 f"Duration: {self.duration} days")
 
     @classmethod

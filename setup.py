@@ -19,6 +19,7 @@ setup(
               "sql_bases/sqlbase_user_anonym",
               "sql_bases/sqlbase_utxo",
               "sql_bases/sqlbase_dlc",
+              "sql_bases/sqlbase_transaction"
               ],
     include_package_data=True,
     url="sziller.eu",  # if url is used at all

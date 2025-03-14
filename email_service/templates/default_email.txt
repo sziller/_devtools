@@ -1,6 +1,8 @@
 Hi {user}!
 This is a testmail!
 
+CHECK IF IT WAS MARKED AS SPAM!
+
 you received this form Sziller's Email server package as a test.
 Have a great Day!
 

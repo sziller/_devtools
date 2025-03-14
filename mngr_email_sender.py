@@ -17,14 +17,22 @@ email_sender = EmailSender(smtp_server=os.getenv("SMTP_ADDR"),
 
 # Define email details
 sender = "register@cadenabitcoin.com"
-recipient = "szillerke@gmail.com"
-subject = "Test-Email"
+# recipient = "kevin2bell@gmail.com"
+# recipient = "szillerke@gmail.com"
+# recipient = "mterez@gmail.com"
+subject = "Test-Email - 0222-2321"
 template_path = "./email_service/templates/default_email.txt"  # Path to email text file
 
 
 template_vars = {"user": "User of Mine",
                  "website": "https://sziller.eu"}
 
+anti_spam_headers = {
+            "Reply-To": "register@cadenabitcoin.com",
+            "List-Unsubscribe": "<https://purabitcoin.com/unsubscribe>",
+            "Precedence": "bulk",
+            "Auto-Submitted": "auto-generated"
+        }
 
 if __name__ == "__main__":
     # Send email
