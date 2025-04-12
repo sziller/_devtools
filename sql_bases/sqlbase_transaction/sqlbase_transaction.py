@@ -5,6 +5,7 @@ by Sziller
 import logging
 from sqlalchemy import Column, String, ForeignKey, Text, TIMESTAMP, func, UniqueConstraint
 from sqlalchemy.orm import relationship, declarative_base
+from sqlalchemy import Integer, BigInteger
 
 Base = declarative_base()
 
@@ -51,6 +52,45 @@ class Transaction(Base):
 
     def __repr__(self):
         return f"Transaction(txid={self.txid}, dlc_id={self.dlc_id}, tx_type={self.tx_type}, status={self.status})"
+
+
+
+class TransactionInput(Base):
+    """Stores metadata for each input in a transaction, needed for signing."""
+    __tablename__ = "transaction_inputs"
+
+    id = Column(String, primary_key=True)
+    transaction_id = Column(String, ForeignKey("transactions.txid", ondelete="CASCADE"), nullable=False)
+    input_index = Column(Integer, nullable=False)
+
+    # Required for signing
+    prev_txid = Column(String, nullable=False)
+    vout = Column(Integer, nullable=False)
+    value = Column(BigInteger, nullable=False)  # satoshis
+    script_pubkey = Column(Text, nullable=False)
+    script_type = Column(String, nullable=False)  # 'p2wpkh', 'p2pkh', etc.
+
+    # Optional extras
+    address = Column(String, nullable=True)
+    pubkey = Column(String, nullable=True)
+
+    transaction = relationship("Transaction", backref="inputs")
+
+    __table_args__ = (UniqueConstraint("transaction_id", "input_index", name="unique_tx_input"),)
+
+    def return_as_dict(self):
+        return {
+            "id": self.id,
+            "transaction_id": self.transaction_id,
+            "input_index": self.input_index,
+            "prev_txid": self.prev_txid,
+            "vout": self.vout,
+            "value": self.value,
+            "script_pubkey": self.script_pubkey,
+            "script_type": self.script_type,
+            "address": self.address,
+            "pubkey": self.pubkey,
+        }
 
 
 class Signature(Base):

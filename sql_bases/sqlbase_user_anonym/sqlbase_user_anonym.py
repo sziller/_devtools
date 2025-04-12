@@ -21,15 +21,14 @@ class UserAnonym(Base):
     __tablename__ = "useranonyms"
     email: str              = Column("email",           String,     primary_key=True    )
     psswd_hsh: str          = Column("psswd_hsh",       String                          )
-    auth_code: int          = Column("auth_code",       Integer                         )
-    xpub: str               = Column("xpub",            String                          )
-    used_addr_set: list     = Column("used_addr_set",   JSON                            )
-    pubkey: str             = Column("pubkey",          String                          )
-    uuid: str               = Column("uuid",            String                          )
-    balance_onchain: int    = Column("balance_onchain", Integer                         )
-    balance_derived: int    = Column("balance_derived", Integer                         )
-    timestamp: float        = Column("timestamp",       Float                           )
-    disabled: bool          = Column("disabled",        BOOLEAN                         )
+    auth_code: int          = Column("auth_code",       Integer,    default=0           )
+    xpub: str               = Column("xpub",            String,     default=""          )
+    used_addr_set: list     = Column("used_addr_set",   JSON,       default=[]          )
+    uuid: str               = Column("uuid",            String,     default=""          )
+    balance_onchain: int    = Column("balance_onchain", Integer,    default=0           )
+    balance_derived: int    = Column("balance_derived", Integer,    default=0           )
+    timestamp: float        = Column("timestamp",       Float,      default=0.0         )
+    disabled: bool          = Column("disabled",        BOOLEAN,    default=False       )
 
     def __init__(self,
                  email: str,
@@ -37,7 +36,6 @@ class UserAnonym(Base):
                  auth_code: int         = 0,
                  xpub: str              = "",
                  used_addr_set: list    = None,
-                 pubkey: str            = "",
                  uuid: str              = "",
                  balance_onchain: int   = 0,
                  balance_derived: int   = 0,
@@ -48,8 +46,7 @@ class UserAnonym(Base):
         self.psswd_hsh: str             = psswd_hsh
         self.auth_code: int             = auth_code
         self.xpub: str                  = xpub
-        self.used_addr_set: list        = used_addr_set
-        self.pubkey: str                = pubkey
+        self.used_addr_set: list        = used_addr_set if used_addr_set is not None else []
         self.uuid: str                  = uuid
         self.balance_onchain: int       = balance_onchain
         self.balance_derived: int       = balance_derived
