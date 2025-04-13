@@ -35,9 +35,16 @@ class Transaction(Base):
     # Relationship to signatures
     signatures = relationship("Signature", back_populates="transaction", cascade="all, delete-orphan")
 
-    def return_as_dict(self):
+    inputs = relationship(
+        "TransactionInput",
+        backref="transaction",
+        cascade="all, delete-orphan"
+    )
+
+    def return_as_dict(self, include_inputs: bool = False):
         """Returns instance as a dictionary"""
-        return {
+        
+        base = {
             "txid": self.txid,
             "dlc_id": self.dlc_id,
             "tx_type": self.tx_type,
@@ -48,6 +55,11 @@ class Transaction(Base):
             "created_at": self.created_at,
             "updated_at": self.updated_at,
             "signatures": [sig.return_as_dict() for sig in self.signatures]}
+        
+        if include_inputs:
+            base["inputs"] = [inp.return_as_dict() for inp in self.inputs]
+
+        return base
     
     def __repr__(self):
         return f"Transaction(txid={self.txid}, dlc_id={self.dlc_id}, tx_type={self.tx_type}, status={self.status})"
