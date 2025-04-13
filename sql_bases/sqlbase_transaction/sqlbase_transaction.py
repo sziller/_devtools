@@ -33,13 +33,8 @@ class Transaction(Base):
     updated_at          = Column(TIMESTAMP, server_default=func.now(), onupdate=func.now())  # Auto timestamp on update
 
     # Relationship to signatures
-    signatures = relationship("Signature", back_populates="transaction", cascade="all, delete-orphan")
-
-    inputs = relationship(
-        "TransactionInput",
-        backref="transaction",
-        cascade="all, delete-orphan"
-    )
+    signatures  = relationship("Signature",         back_populates="transaction", cascade="all, delete-orphan")
+    inputs      = relationship("TransactionInput",  back_populates="transaction", cascade="all, delete-orphan")
 
     def return_as_dict(self, include_inputs: bool = False):
         """Returns instance as a dictionary"""
@@ -72,19 +67,17 @@ class TransactionInput(Base):
     id                  = Column(String, primary_key=True)
     transaction_id      = Column(String, ForeignKey("transactions.txid", ondelete="CASCADE"), nullable=False)
     input_index         = Column(Integer, nullable=False)
-
     # Required for signing
     prev_txid           = Column(String, nullable=False)
     vout                = Column(Integer, nullable=False)
     value               = Column(BigInteger, nullable=False)  # satoshis
     script_pubkey       = Column(Text, nullable=False)
     script_type         = Column(String, nullable=False)  # 'p2wpkh', 'p2pkh', etc.
-
     # Optional extras
     address             = Column(String, nullable=True)
     pubkey              = Column(String, nullable=True)
 
-    transaction = relationship("Transaction", backref="inputs")
+    transaction = relationship("Transaction", back_populates="inputs")
 
     __table_args__ = (UniqueConstraint("transaction_id", "input_index", name="unique_tx_input"),)
 
