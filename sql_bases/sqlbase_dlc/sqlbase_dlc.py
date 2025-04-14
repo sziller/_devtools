@@ -147,18 +147,21 @@ class DLC:
 class DLCP(DLC):
     """DLCP adds acceptor details, pubkeys, and status."""
     product_id: str
+    expiry_offer: Optional[int]
     ini_email: Optional[str]
     acc_email: Optional[str]
-
+    
     def __init__(self,
                  product_id: str = "dlcp",
+                 expiry_offer: Optional[int] = None,
                  ini_email: Optional[str] = None,
                  acc_email: Optional[str] = None,
                  *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.product_id = product_id
-        self.ini_email = ini_email
-        self.acc_email = acc_email
+        self.product_id     = product_id
+        self.expiry_offer   = expiry_offer
+        self.ini_email      = ini_email
+        self.acc_email      = acc_email
 
 
 class LendBorrowBTCUSD_Product(DLCP, Base):
@@ -208,6 +211,7 @@ class LendBorrowBTCUSD_Product(DLCP, Base):
     refund_at               = Column("refund_at",               Float,      nullable=True)
     
     product_id              = Column("product_id",              String,     nullable=False)
+    expiry_offer            = Column("expiry_offer",            Integer,    nullable=True)
     ini_email               = Column("ini_email",               String,     nullable=True)
     acc_email               = Column("acc_email",               String,     nullable=True)
     
@@ -230,6 +234,7 @@ class LendBorrowBTCUSD_Product(DLCP, Base):
     def __init__(self,
                  tmp_cntr_id: str,
                  product_id: str,
+                 expiry_offer: Optional[int]                = None,
                  ini_role: Optional[str]                    = None,
                  # loan_sats: Optional[int]                   = None,
                  # collateral_sats: Optional[int]             = None,
@@ -252,14 +257,13 @@ class LendBorrowBTCUSD_Product(DLCP, Base):
         """
         # mandatory argument passing
         kwargs["tmp_cntr_id"]       = tmp_cntr_id
-        kwargs["dlc_id"]            = tmp_cntr_id  # Assign tmp_cntr_id to dlc_id if dlc_id is not explicitly provided
+        kwargs["dlc_id"]            = tmp_cntr_id  # Assign tmp_cntr_id to dlc_id if dlc_id not explicitly provided!!!
         kwargs["product_id"]        = product_id
         super().__init__(*args, **kwargs)
         
         # Initialize LendBorrowBTCUSD_Product-specific attributes
+        self.expiry_offer       = expiry_offer
         self.ini_role           = ini_role
-        # self.loan_sats          = loan_sats
-        # self.collateral_sats    = collateral_sats
         self.duration           = duration
         self.interest           = interest
         self.interest_ear       = interest_ear
