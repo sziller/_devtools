@@ -72,8 +72,13 @@ def setup_logger(conf, logger_name: str = "sz_logger"):
                 "propagate": False
             },
             "passlib": {
-                "level": "WARNING",  # Set passlib to a higher level to suppress debug logs
+                "level": "WARNING",
                 "handlers": ["file", "console"],
+                "propagate": False
+            },
+            "urllib3.connectionpool": {
+                "level": "DEBUG",
+                "handlers": ["file"],
                 "propagate": False
             }
         }
