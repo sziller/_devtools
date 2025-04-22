@@ -48,14 +48,14 @@ def setup_logger(conf, logger_name: str = "sz_logger"):
                 "class": "logging.FileHandler",  # Uses the FileHandler class to handle file-based logging
                 "filename": log_fullfilename,  # The path to the log file, defined as log_fullfilename
                 "formatter": "default",  # Applies the "default" formatter to format log messages
-                "level": getattr(logging, conf.LOG_LEVEL_FILE),
+                "level": conf.LOG_LEVEL_FILE,
                 "mode": "w"
                 # Sets log level for file handler using conf.LOG_LEVEL_FILE
             },
             "console": {  # Console handler configuration to output logs to the terminal
                 "class": "logging.StreamHandler",  # Uses StreamHandler to output logs to the console
                 "formatter": "default",  # Applies the "default" formatter for console logs
-                "level": getattr(logging, conf.LOG_LEVEL_CONS),  # Sets console log level using conf.LOG_LEVEL_CONS
+                "level": conf.LOG_LEVEL_CONS,  # Sets console log level using conf.LOG_LEVEL_CONS
                 "stream": "ext://sys.stdout",  # Explicitly set to stdout to avoid stderr recursion
             },
         },
