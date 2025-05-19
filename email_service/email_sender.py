@@ -1,5 +1,6 @@
 import smtplib
 import asyncio
+import inspect
 import os
 import logging
 from typing import Optional, List, Dict
@@ -26,7 +27,8 @@ class EmailPayload(BaseModel):
 
 class EmailSender:
     """Class to manage emails"""
-
+    ccn = inspect.currentframe().f_code.co_name
+    
     def __init__(self,
                  smtp_server: str,
                  smtp_port: int,
@@ -124,8 +126,11 @@ class EmailSender:
         :param template_path: Path to the email template file
         :param sender: Sender email address
         :param attachments: List of file paths to attach (optional)
+        :param headers: necessary spam filter evasion
         :param template_vars: Dynamic values to insert into the email template
         """
+        cmn = inspect.currentframe().f_code.co_name
+        
         try:
             payload = EmailPayload(
                 sender=sender,
@@ -152,7 +157,8 @@ class EmailSender:
                 server.sendmail(str(payload.sender),
                                 str(payload.recipient),
                                 msg.as_string())
-                lg.info(f"Email successfully sent to {payload.recipient}")
+                lg.info(f"send email: successfully to: {payload.recipient:>53} - says {cmn} at {self.ccn}")
+
 
         except smtplib.SMTPAuthenticationError as e:
             lg.error(f"Authentication failed: {e}. Ensure SMTP authentication is enabled.")
