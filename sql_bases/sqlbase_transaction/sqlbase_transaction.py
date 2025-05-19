@@ -28,6 +28,7 @@ class Transaction(Base):
     acc_email: str      = Column(String, nullable=True)  # Email of the accepting user
     tx_hex: str         = Column(Text, nullable=False)  # Raw unsigned Bitcoin transaction
     status: str         = Column(String, nullable=False, default="pending")
+    sighash: str        = Column(String, nullable=False)
     # 'pending', 'partially_signed', 'signed', 'broadcast'
     created_at          = Column(TIMESTAMP, server_default=func.now())  # Auto timestamp on creation
     updated_at          = Column(TIMESTAMP, server_default=func.now(), onupdate=func.now())  # Auto timestamp on update
@@ -47,6 +48,7 @@ class Transaction(Base):
             "acc_email": self.acc_email,
             "tx_hex": self.tx_hex,
             "status": self.status,
+            "sighash": self.sighash,
             "created_at": self.created_at,
             "updated_at": self.updated_at,
             "signatures": [sig.return_as_dict() for sig in self.signatures]}
@@ -76,6 +78,7 @@ class TransactionInput(Base):
     # Optional extras
     address             = Column(String, nullable=True)
     pubkey              = Column(String, nullable=True)
+    sighash             = Column(String, nullable=False)
     role                = Column(String, nullable=True)
 
     transaction = relationship("Transaction", back_populates="inputs")
@@ -95,6 +98,7 @@ class TransactionInput(Base):
             "script_type": self.script_type,
             "address": self.address,
             "pubkey": self.pubkey,
+            "sighash": self.sighash,
             "role": self.role}
 
 
