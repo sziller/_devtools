@@ -24,9 +24,7 @@ class DLC:
     chain_hash: str
     cntr_flags: int
     
-    # ini_pubkey: Optional[str]
     ini_pubkey_funding: Optional[str]
-    # ini_pubkey_index: Optional[int]  # totally not basic DLC necessary
     ini_payout_spk: Optional[str]
     ini_payout_ser_id: Optional[int]
     ini_change_spk: Optional[str]
@@ -36,9 +34,7 @@ class DLC:
     ini_collateral_sats: Optional[int]
     ini_signatures: Optional[Dict[str, Any]]
     
-    # acc_pubkey: Optional[str]
     acc_pubkey_funding: Optional[str]
-    # acc_pubkey_index: Optional[int]
     acc_payout_spk: Optional[str]
     acc_payout_ser_id: Optional[int]
     acc_change_spk: Optional[str]
@@ -69,9 +65,7 @@ class DLC:
             cntr_flags: int = 0,                                                                    # created, offer_dlc
             dlc_id: Optional[str] = None,                                                           # created, offer_dlc
             
-            # ini_pubkey: Optional[str] = None,
             ini_pubkey_funding: Optional[str] = None,
-            # ini_pubkey_index: Optional[int] = None,
             ini_payout_spk: Optional[str] = None,
             ini_payout_ser_id: Optional[int] = None,
             ini_change_spk: Optional[str] = None,
@@ -81,9 +75,7 @@ class DLC:
             ini_collateral_sats: Optional[int] = None,
             ini_signatures: Optional[Dict[str, Any]] = None,
             
-            # acc_pubkey: Optional[str] = None,
             acc_pubkey_funding: Optional[str] = None,
-            # acc_pubkey_index: Optional[int] = None,
             acc_payout_spk: Optional[str] = None,
             acc_payout_ser_id: Optional[int] = None,
             acc_change_spk: Optional[str] = None,
@@ -115,9 +107,7 @@ class DLC:
         self.chain_hash = chain_hash
         self.cntr_flags = cntr_flags
         
-#        self.ini_pubkey = ini_pubkey
         self.ini_pubkey_funding = ini_pubkey_funding
-        # self.ini_pubkey_index = ini_pubkey_index
         self.ini_payout_spk = ini_payout_spk
         self.ini_payout_ser_id = ini_payout_ser_id
         self.ini_change_spk = ini_change_spk
@@ -127,9 +117,7 @@ class DLC:
         self.ini_collateral_sats = ini_collateral_sats
         self.ini_signatures = ini_signatures or {}
         
-        # self.acc_pubkey = acc_pubkey
         self.acc_pubkey_funding = acc_pubkey_funding
-        # self.acc_pubkey_index = acc_pubkey_index
         self.acc_payout_spk = acc_payout_spk
         self.acc_payout_ser_id = acc_payout_ser_id
         self.acc_change_spk = acc_change_spk
@@ -190,9 +178,8 @@ class LendBorrowBTCUSD_Product(DLCP, Base):
                                      default="000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f")
     cntr_flags              = Column("cntr_flags", Integer, nullable=False, default=0)
     
-#    ini_pubkey              = Column("ini_pubkey",              String,     nullable=True)  # not necessary
     ini_pubkey_funding      = Column("ini_pubkey_funding",      String,     nullable=True)
-    ini_pubkey_index        = Column("ini_pubkey_index",        String,     nullable=True)
+    ini_pubkey_index        = Column("ini_pubkey_index",        Integer,    nullable=True)
     ini_payout_spk          = Column("ini_payout_spk",          String,     nullable=True)
     ini_payout_ser_id       = Column("ini_payout_ser_id",       Integer,    nullable=True)
     ini_change_spk          = Column("ini_change_spk",          String,     nullable=True)
@@ -202,9 +189,8 @@ class LendBorrowBTCUSD_Product(DLCP, Base):
     ini_collateral_sats     = Column("ini_collateral_sats",     Integer,    nullable=True)
     ini_signatures          = Column("ini_signatures",          JSON,       nullable=True, default=dict)
     
-    acc_pubkey              = Column("acc_pubkey",              String,     nullable=True)  # not necessary
     acc_pubkey_funding      = Column("acc_pubkey_funding",      String,     nullable=True)
-    acc_pubkey_index        = Column("acc_pubkey_index",        String,     nullable=True)
+    acc_pubkey_index        = Column("acc_pubkey_index",        Integer,    nullable=True)
     acc_payout_spk          = Column("acc_payout_spk",          String,     nullable=True)
     acc_payout_ser_id       = Column("acc_payout_ser_id",       Integer,    nullable=True)
     acc_change_spk          = Column("acc_change_spk",          String,     nullable=True)
@@ -230,8 +216,6 @@ class LendBorrowBTCUSD_Product(DLCP, Base):
     acc_email               = Column("acc_email",               String,     nullable=True)
     
     ini_role                = Column("ini_role",                String,     nullable=True)  # 0: lend 1: borrow
-    # loan_sats               = Column("loan_sats",               Integer,    nullable=True)  # Loan amount
-    # collateral_sats         = Column("collateral_sats",         Integer,    nullable=True)  # Collateral amount
     duration                = Column("duration",                Integer,    nullable=True)  # Duration in days
     interest                = Column("interest",                Float,      nullable=True)
     interest_ear            = Column("interest_ear",            Float,      nullable=True)
@@ -250,8 +234,6 @@ class LendBorrowBTCUSD_Product(DLCP, Base):
                  product_id: str,
                  expiry_offer: Optional[int]                = None,
                  ini_role: Optional[str]                    = None,
-                 # loan_sats: Optional[int]                   = None,
-                 # collateral_sats: Optional[int]             = None,
                  duration: Optional[int]                    = None,
                  interest: Optional[float]                  = None,
                  interest_ear: Optional[float]              = None,
