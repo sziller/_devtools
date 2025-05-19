@@ -28,7 +28,7 @@ class Transaction(Base):
     acc_email: str      = Column(String, nullable=True)  # Email of the accepting user
     tx_hex: str         = Column(Text, nullable=False)  # Raw unsigned Bitcoin transaction
     status: str         = Column(String, nullable=False, default="pending")
-    sighash: str        = Column(String, nullable=False)
+    sighash: str        = Column(String, nullable=False, default="N/A")
     # 'pending', 'partially_signed', 'signed', 'broadcast'
     created_at          = Column(TIMESTAMP, server_default=func.now())  # Auto timestamp on creation
     updated_at          = Column(TIMESTAMP, server_default=func.now(), onupdate=func.now())  # Auto timestamp on update
@@ -78,8 +78,8 @@ class TransactionInput(Base):
     # Optional extras
     address             = Column(String, nullable=True)
     pubkey              = Column(String, nullable=True)
-    sighash             = Column(String, nullable=False)
-    role                = Column(String, nullable=True)
+    sighash             = Column(String, nullable=False, default="N/A")
+    role                = Column(String, nullable=False, default="N/A")
 
     transaction = relationship("Transaction", back_populates="inputs")
 
