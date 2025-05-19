@@ -76,7 +76,7 @@ class TransactionInput(Base):
     # Optional extras
     address             = Column(String, nullable=True)
     pubkey              = Column(String, nullable=True)
-    ini_role            = Column(String, nullable=True)
+    role                = Column(String, nullable=True)
 
     transaction = relationship("Transaction", back_populates="inputs")
 
@@ -95,7 +95,7 @@ class TransactionInput(Base):
             "script_type": self.script_type,
             "address": self.address,
             "pubkey": self.pubkey,
-            "ini_role": self.ini_role}
+            "role": self.role}
 
 
 class Signature(Base):
