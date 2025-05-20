@@ -45,6 +45,11 @@ class DLC:
     acc_signatures: Optional[Dict[str, Any]]
     
     orcl_id: Optional[str]
+    orcl_pubkey: Optional[str]
+    digit_string_template: Optional[str]
+    nonces: Optional[str]
+    interval_wildcards: Optional[str]
+    
     cntr_terms: Dict[str, Any]
     feerate_per_vb: Optional[int]
     cet_locktime: Optional[int]
@@ -86,6 +91,10 @@ class DLC:
             acc_signatures: Optional[Dict[str, Any]] = None,
             
             orcl_id: Optional[str] = None,                                                          # offer_, offer_dlc
+            orcl_pubkey: Optional[str] = None,
+            digit_string_template: Optional[str] = None,
+            nonces: Optional[str] = None,
+            interval_wildcards: Optional[str] = None,
             cntr_terms: Dict[str, Any] = None,
             feerate_per_vb: Optional[int] = None,
             cet_locktime: Optional[int] = None,
@@ -127,15 +136,19 @@ class DLC:
         self.acc_collateral_sats = acc_collateral_sats
         self.acc_signatures = acc_signatures or {}
         
-        self.orcl_id = orcl_id
-        self.cntr_terms = cntr_terms
-        self.feerate_per_vb = feerate_per_vb
-        self.cet_locktime = cet_locktime
-        self.refund_locktime = refund_locktime
+        self.orcl_id                = orcl_id
+        self.orcl_pubkey            = orcl_pubkey
+        self.digit_string_template  = digit_string_template
+        self.nonces                 = nonces
+        self.interval_wildcards     = interval_wildcards
+        self.cntr_terms             = cntr_terms
+        self.feerate_per_vb         = feerate_per_vb
+        self.cet_locktime           = cet_locktime
+        self.refund_locktime        = refund_locktime
         
-        self.offered_at = offered_at
-        self.attest_at = attest_at
-        self.refund_at = refund_at
+        self.offered_at             = offered_at
+        self.attest_at              = attest_at
+        self.refund_at              = refund_at
         
 
 class DLCP(DLC):
@@ -156,12 +169,12 @@ class DLCP(DLC):
                  acc_pubkey_index: Optional[int] = None,
                  *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.product_id     = product_id
-        self.expiry_offer   = expiry_offer
-        self.ini_email      = ini_email
-        self.acc_email      = acc_email
-        self.ini_pubkey_index = ini_pubkey_index
-        self.acc_pubkey_index = acc_pubkey_index
+        self.product_id         = product_id
+        self.expiry_offer       = expiry_offer
+        self.ini_email          = ini_email
+        self.acc_email          = acc_email
+        self.ini_pubkey_index   = ini_pubkey_index
+        self.acc_pubkey_index   = acc_pubkey_index
 
 
 class LendBorrowBTCUSD_Product(DLCP, Base):
@@ -201,6 +214,11 @@ class LendBorrowBTCUSD_Product(DLCP, Base):
     acc_signatures          = Column("acc_signatures",          JSON,       nullable=True, default=dict)
     
     orcl_id                 = Column("orcl_id",                 String,     nullable=True)
+    orcl_pubkey             = Column("orcl_pubkey",             String,     nullable=True)
+    digit_string_template   = Column("digit_string_template",   String,     nullable=True)
+    nonces                  = Column("nonces",                  String,     nullable=True)
+    interval_wildcards      = Column("interval_wildcards",      String,     nullable=True)
+    
     cntr_terms              = Column("cntr_terms",              JSON,       nullable=True)
     feerate_per_vb          = Column("feerate_per_vb",          Integer,    nullable=True)
     cet_locktime            = Column("cet_locktime",            Integer,    nullable=True)
