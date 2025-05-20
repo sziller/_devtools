@@ -78,6 +78,7 @@ class TransactionInput(Base):
     # Optional extras
     address             = Column(String, nullable=True)
     pubkey              = Column(String, nullable=True)
+    pubkey_index        = Column(Integer, nullable=True)
     sighash             = Column(String, nullable=False, default="N/A")
     role                = Column(String, nullable=False, default="N/A")
 
@@ -98,6 +99,7 @@ class TransactionInput(Base):
             "script_type": self.script_type,
             "address": self.address,
             "pubkey": self.pubkey,
+            "pubkey_index": self.pubkey_index,
             "sighash": self.sighash,
             "role": self.role}
 

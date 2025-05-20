@@ -9,7 +9,7 @@ from setuptools import setup
 
 setup(
     name='devtools',  # package name, used at pip or tar.
-    version='0.0.1',  # version Nr.... whatever
+    version='0.0.2',  # version Nr.... whatever
     # ATTENTION: use different packages for use-cases
     packages=["shmc_api_classes", "shmc_backend_classes", "sz_messages", "sql_access", "sql_bases", "log_tools",
               "email_service",
