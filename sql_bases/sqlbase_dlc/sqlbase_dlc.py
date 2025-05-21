@@ -50,7 +50,7 @@ class DLC:
     nonces: Optional[str]
     interval_wildcards: Optional[str]
     
-    cntr_terms: Dict[str, Any]
+    cntr_terms: Optional[Dict[str, Any]]
     feerate_per_vb: Optional[int]
     cet_locktime: Optional[int]
     refund_locktime: Optional[int]
@@ -95,7 +95,7 @@ class DLC:
             digit_string_template: Optional[str] = None,
             nonces: Optional[str] = None,
             interval_wildcards: Optional[str] = None,
-            cntr_terms: Dict[str, Any] = None,
+            cntr_terms: Optional[Dict[str, Any]] = None,
             feerate_per_vb: Optional[int] = None,
             cet_locktime: Optional[int] = None,
             refund_locktime: Optional[int] = None,

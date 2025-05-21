@@ -27,8 +27,10 @@ class Transaction(Base):
     ini_email: str      = Column(String, nullable=True)  # Email of the initiating user
     acc_email: str      = Column(String, nullable=True)  # Email of the accepting user
     tx_hex: str         = Column(Text, nullable=False)  # Raw unsigned Bitcoin transaction
+    tx_hex_signed: str  = Column(Text, nullable=True)  # Raw signed Bitcoin transaction
     status: str         = Column(String, nullable=False, default="pending")
     sighash: str        = Column(String, nullable=False, default="N/A")
+    interval_wildcards: str =  Column(String, nullable=True)  # if permanent, delete from DLC!!!
     # 'pending', 'partially_signed', 'signed', 'broadcast'
     created_at          = Column(TIMESTAMP, server_default=func.now())  # Auto timestamp on creation
     updated_at          = Column(TIMESTAMP, server_default=func.now(), onupdate=func.now())  # Auto timestamp on update
@@ -47,8 +49,10 @@ class Transaction(Base):
             "ini_email": self.ini_email,
             "acc_email": self.acc_email,
             "tx_hex": self.tx_hex,
+            "tx_hex_signed": self.tx_hex_signed,
             "status": self.status,
             "sighash": self.sighash,
+            "interval_wildcards": self.interval_wildcards,
             "created_at": self.created_at,
             "updated_at": self.updated_at,
             "signatures": [sig.return_as_dict() for sig in self.signatures]}
