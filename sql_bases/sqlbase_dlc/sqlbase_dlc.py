@@ -55,9 +55,12 @@ class DLC:
     cet_locktime: Optional[int]
     refund_locktime: Optional[int]
     
-    offered_at: Optional[float]
-    attest_at: Optional[float]
-    refund_at: Optional[float]
+    offered_at: Optional[float]  # when the odder is placed by the Initiator
+    accepted_at: Optional[float]  # when the offer is accepted by the Acceptor
+    signed_ini_at: Optional[float]  # when the deal (accepted offer) is signed by the Initiator
+    signed_acc_at: Optional[float]  # when the deal (accepted offer) is signed by the Acceptor
+    attest_at: Optional[float]  # when the Oracle attested to the result
+    refund_at: Optional[float]  # when possible refund is due
     
     def __init__(
             self,
@@ -101,6 +104,9 @@ class DLC:
             refund_locktime: Optional[int] = None,
             
             offered_at: Optional[float] = None,
+            accepted_at: Optional[float] = None,
+            signed_ini_at: Optional[float] = None,
+            signed_acc_at: Optional[float] = None,
             attest_at: Optional[float] = None,
             refund_at: Optional[float] = None,
             *args, **kwargs
@@ -141,12 +147,15 @@ class DLC:
         self.digit_string_template  = digit_string_template
         self.nonces                 = nonces
         self.interval_wildcards     = interval_wildcards
-        self.cntr_terms             = cntr_terms
+        self.cntr_terms             = cntr_terms or {}
         self.feerate_per_vb         = feerate_per_vb
         self.cet_locktime           = cet_locktime
         self.refund_locktime        = refund_locktime
         
         self.offered_at             = offered_at
+        self.accepted_at            = accepted_at
+        self.signed_ini_at          = signed_ini_at
+        self.signed_acc_at          = signed_acc_at
         self.attest_at              = attest_at
         self.refund_at              = refund_at
         
@@ -219,12 +228,15 @@ class LendBorrowBTCUSD_Product(DLCP, Base):
     nonces                  = Column("nonces",                  String,     nullable=True)
     interval_wildcards      = Column("interval_wildcards",      String,     nullable=True)
     
-    cntr_terms              = Column("cntr_terms",              JSON,       nullable=True)
+    cntr_terms              = Column("cntr_terms",              JSON,       nullable=True, default=dict)
     feerate_per_vb          = Column("feerate_per_vb",          Integer,    nullable=True)
     cet_locktime            = Column("cet_locktime",            Integer,    nullable=True)
     refund_locktime         = Column("refund_locktime",         Integer,    nullable=True)
 
     offered_at              = Column("offered_at",              Float,      nullable=True)
+    accepted_at             = Column("accepted_at",             Float,      nullable=True)
+    signed_ini_at           = Column("signed_ini_at",           Float,      nullable=True)
+    signed_acc_at           = Column("signed_acc_at",           Float,      nullable=True)
     attest_at               = Column("attest_at",               Float,      nullable=True)
     refund_at               = Column("refund_at",               Float,      nullable=True)
     
