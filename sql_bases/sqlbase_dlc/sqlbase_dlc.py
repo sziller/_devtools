@@ -49,6 +49,7 @@ class DLC:
     digit_string_template: Optional[str]
     nonces: Optional[str]
     interval_wildcards: Optional[str]
+    num_digits: Optional[int]
     
     cntr_terms: Optional[Dict[str, Any]]
     feerate_per_vb: Optional[int]
@@ -98,10 +99,12 @@ class DLC:
             digit_string_template: Optional[str] = None,
             nonces: Optional[str] = None,
             interval_wildcards: Optional[str] = None,
+            num_digits: Optional[int] = None,
             cntr_terms: Optional[Dict[str, Any]] = None,
             feerate_per_vb: Optional[int] = None,
             cet_locktime: Optional[int] = None,
             refund_locktime: Optional[int] = None,
+            
             
             offered_at: Optional[float] = None,
             accepted_at: Optional[float] = None,
@@ -147,6 +150,7 @@ class DLC:
         self.digit_string_template  = digit_string_template
         self.nonces                 = nonces
         self.interval_wildcards     = interval_wildcards
+        self.num_digits             = num_digits
         self.cntr_terms             = cntr_terms or {}
         self.feerate_per_vb         = feerate_per_vb
         self.cet_locktime           = cet_locktime
@@ -227,6 +231,7 @@ class LendBorrowBTCUSD_Product(DLCP, Base):
     digit_string_template   = Column("digit_string_template",   String,     nullable=True)
     nonces                  = Column("nonces",                  String,     nullable=True)
     interval_wildcards      = Column("interval_wildcards",      String,     nullable=True)
+    num_digits              = Column("num_digits",              Integer,    nullable=True)
     
     cntr_terms              = Column("cntr_terms",              JSON,       nullable=True, default=dict)
     feerate_per_vb          = Column("feerate_per_vb",          Integer,    nullable=True)
