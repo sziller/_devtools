@@ -50,16 +50,38 @@ class DLC:
     nonces: Optional[str]
     interval_wildcards: Optional[str]
     num_digits: Optional[int]
+    # -----------------------------------------------------------
+    orcl_event_id: Optional[str]
+    orcl_event_time: Optional[int]
+    orcl_poll_at: Optional[int]
+    orcl_final_value: Optional[int]
+    orcl_outcome_time: Optional[int]
+    orcl_signatures: Optional[str]
+    orcl_outcome_digits_json: Optional[Dict[str, Any]]
+    orcl_outcome_url: Optional[str]
+    orcl_outcome_at: Optional[str]
+
+    final_interval: Optional[str]
     
     cntr_terms: Optional[Dict[str, Any]]
     feerate_per_vb: Optional[int]
     cet_locktime: Optional[int]
     refund_locktime: Optional[int]
+
+    ftx_id: Optional[str]
+    rtx_id: Optional[str]
+    cet_id: Optional[str]
     
     offered_at: Optional[float]  # when the odder is placed by the Initiator
     accepted_at: Optional[float]  # when the offer is accepted by the Acceptor
     signed_ini_at: Optional[float]  # when the deal (accepted offer) is signed by the Initiator
     signed_acc_at: Optional[float]  # when the deal (accepted offer) is signed by the Acceptor
+    broadcast_ftx_at: Optional[int]
+    broadcast_cet_at: Optional[int]
+    broadcast_rtx_at: Optional[int]
+    confirmed_cet_at: Optional[int]
+    confirmed_ftx_at: Optional[int]
+    confirmed_rtx_at: Optional[int]
     attest_at: Optional[float]  # when the Oracle attested to the result
     refund_at: Optional[float]  # when possible refund is due
     
@@ -100,16 +122,39 @@ class DLC:
             nonces: Optional[str] = None,
             interval_wildcards: Optional[str] = None,
             num_digits: Optional[int] = None,
+            # ---------------------------------------------------------------
+            orcl_event_id: Optional[str] = None,
+            orcl_event_time: Optional[int] = None,
+
+            orcl_poll_at: Optional[int] = None,
+            orcl_final_value: Optional[int] = None,
+            orcl_outcome_time: Optional[int] = None,
+            orcl_signatures: Optional[str] = None,
+            orcl_outcome_digits_json: Optional[Dict[str, Any]] = None,
+            orcl_outcome_url: Optional[str] = None,
+            orcl_outcome_at: Optional[str] = None,
+
+            final_interval: Optional[str] = None,
+            
             cntr_terms: Optional[Dict[str, Any]] = None,
             feerate_per_vb: Optional[int] = None,
             cet_locktime: Optional[int] = None,
             refund_locktime: Optional[int] = None,
-            
+
+            ftx_id: Optional[str] = None,
+            rtx_id: Optional[str] = None,
+            cet_id: Optional[str] = None,
             
             offered_at: Optional[float] = None,
             accepted_at: Optional[float] = None,
             signed_ini_at: Optional[float] = None,
             signed_acc_at: Optional[float] = None,
+            broadcast_ftx_at: Optional[int] = None,
+            broadcast_cet_at: Optional[int] = None,
+            broadcast_rtx_at: Optional[int] = None,
+            confirmed_cet_at: Optional[int] = None,
+            confirmed_ftx_at: Optional[int] = None,
+            confirmed_rtx_at: Optional[int] = None,
             attest_at: Optional[float] = None,
             refund_at: Optional[float] = None,
             *args, **kwargs
@@ -145,21 +190,45 @@ class DLC:
         self.acc_collateral_sats = acc_collateral_sats
         self.acc_signatures = acc_signatures or {}
         
-        self.orcl_id                = orcl_id
-        self.orcl_pubkey            = orcl_pubkey
-        self.digit_string_template  = digit_string_template
-        self.nonces                 = nonces
-        self.interval_wildcards     = interval_wildcards
-        self.num_digits             = num_digits
+        self.orcl_id                    = orcl_id
+        self.orcl_pubkey                = orcl_pubkey
+        self.digit_string_template      = digit_string_template
+        self.nonces                     = nonces
+        self.interval_wildcards         = interval_wildcards
+        self.num_digits                 = num_digits
+
+        self.orcl_event_id              = orcl_event_id
+        self.orcl_event_time            = orcl_event_time
+
+        self.orcl_poll_at               = orcl_poll_at
+        self.orcl_final_value           = orcl_final_value
+        self.orcl_outcome_time          = orcl_outcome_time
+        self.orcl_signatures            = orcl_signatures
+        self.orcl_outcome_digits_json   = orcl_outcome_digits_json or {}
+        self.orcl_outcome_url           = orcl_outcome_url
+        self.orcl_outcome_at            = orcl_outcome_at
+
+        self.final_interval             = final_interval
+        
         self.cntr_terms             = cntr_terms or {}
         self.feerate_per_vb         = feerate_per_vb
         self.cet_locktime           = cet_locktime
         self.refund_locktime        = refund_locktime
+
+        self.ftx_id                 = ftx_id
+        self.rtx_id                 = rtx_id
+        self.cet_id                 = cet_id
         
         self.offered_at             = offered_at
         self.accepted_at            = accepted_at
         self.signed_ini_at          = signed_ini_at
         self.signed_acc_at          = signed_acc_at
+        self.broadcast_ftx_at       = broadcast_ftx_at
+        self.broadcast_cet_at       = broadcast_cet_at
+        self.broadcast_rtx_at       = broadcast_rtx_at
+        self.confirmed_cet_at       = confirmed_cet_at
+        self.confirmed_ftx_at       = confirmed_ftx_at
+        self.confirmed_rtx_at       = confirmed_rtx_at
         self.attest_at              = attest_at
         self.refund_at              = refund_at
         
@@ -226,29 +295,50 @@ class LendBorrowBTCUSD_Product(DLCP, Base):
     acc_collateral_sats     = Column("acc_collateral_sats",     Integer,    nullable=True)
     acc_signatures          = Column("acc_signatures",          JSON,       nullable=True, default=dict)
     
-    orcl_id                 = Column("orcl_id",                 String,     nullable=True)
-    orcl_pubkey             = Column("orcl_pubkey",             String,     nullable=True)
-    digit_string_template   = Column("digit_string_template",   String,     nullable=True)
-    nonces                  = Column("nonces",                  String,     nullable=True)
-    interval_wildcards      = Column("interval_wildcards",      String,     nullable=True)
-    num_digits              = Column("num_digits",              Integer,    nullable=True)
+    orcl_id                 = Column("orcl_id",                     String,     nullable=True)
+    orcl_pubkey             = Column("orcl_pubkey",                 String,     nullable=True)
+    digit_string_template   = Column("digit_string_template",       String,     nullable=True)
+    nonces                  = Column("nonces",                      String,     nullable=True)
+    interval_wildcards      = Column("interval_wildcards",          String,     nullable=True)
+    num_digits              = Column("num_digits",                  Integer,    nullable=True)
     
-    cntr_terms              = Column("cntr_terms",              JSON,       nullable=True, default=dict)
-    feerate_per_vb          = Column("feerate_per_vb",          Integer,    nullable=True)
-    cet_locktime            = Column("cet_locktime",            Integer,    nullable=True)
-    refund_locktime         = Column("refund_locktime",         Integer,    nullable=True)
-
-    offered_at              = Column("offered_at",              Float,      nullable=True)
-    accepted_at             = Column("accepted_at",             Float,      nullable=True)
-    signed_ini_at           = Column("signed_ini_at",           Float,      nullable=True)
-    signed_acc_at           = Column("signed_acc_at",           Float,      nullable=True)
-    attest_at               = Column("attest_at",               Float,      nullable=True)
-    refund_at               = Column("refund_at",               Float,      nullable=True)
+    orcl_event_id           = Column=("orcl_event_id",               String,     nullable=True)      
+    orcl_event_time         = Column=("orcl_event_time",             String,     nullable=True)     
+    orcl_poll_at            = Column=("orcl_poll_at",                String,     nullable=True) 
+    orcl_final_value        = Column=("orcl_final_value",            String,     nullable=True)     
+    orcl_outcome_time       = Column=("orcl_outcome_time",           String,     nullable=True)         
+    orcl_signatures         = Column=("orcl_signatures",             String,     nullable=True)     
+    orcl_outcome_digits_json= Column=("orcl_outcome_digits_json",    String,     nullable=True)             
+    orcl_outcome_url        = Column=("orcl_outcome_url",            String,     nullable=True)     
+    orcl_outcome_at         = Column=("orcl_outcome_at",             String,     nullable=True)
+    
+    cntr_terms              = Column("cntr_terms",                  JSON,       nullable=True, default=dict)
+    feerate_per_vb          = Column("feerate_per_vb",              Integer,    nullable=True)
+    cet_locktime            = Column("cet_locktime",                Integer,    nullable=True)
+    refund_locktime         = Column("refund_locktime",             Integer,    nullable=True)
+    
+    offered_at              = Column("offered_at",                  Float,      nullable=True)
+    accepted_at             = Column("accepted_at",                 Float,      nullable=True)
+    signed_ini_at           = Column("signed_ini_at",               Float,      nullable=True)
+    signed_acc_at           = Column("signed_acc_at",               Float,      nullable=True)
+    attest_at               = Column("attest_at",                   Float,      nullable=True)
+    refund_at               = Column("refund_at",                   Float,      nullable=True)
     
     product_id              = Column("product_id",              String,     nullable=False)
     expiry_offer            = Column("expiry_offer",            Integer,    nullable=True)
     ini_email               = Column("ini_email",               String,     nullable=True)
     acc_email               = Column("acc_email",               String,     nullable=True)
+    
+    ftx_id                  = Column("ftx_id",                  String,     nullable=True)  # Funding TX ID
+    rtx_id                  = Column("rtx_id",                  String,     nullable=True)  # Refund TX ID
+    cet_id                  = Column("cet_id",                  String,     nullable=True)  # CET (valid) TX ID
+
+    broadcast_ftx_at        = Column("broadcast_ftx_at",        Integer,    nullable=True)
+    broadcast_cet_at        = Column("broadcast_cet_at",        Integer,    nullable=True)
+    broadcast_rtx_at        = Column("broadcast_rtx_at",        Integer,    nullable=True)
+    confirmed_cet_at        = Column("confirmed_cet_at",        Integer,    nullable=True)
+    confirmed_ftx_at        = Column("confirmed_ftx_at",        Integer,    nullable=True)
+    confirmed_rtx_at        = Column("confirmed_rtx_at",        Integer,    nullable=True)
     
     ini_role                = Column("ini_role",                String,     nullable=True)  # 0: lend 1: borrow
     duration                = Column("duration",                Integer,    nullable=True)  # Duration in days
@@ -257,12 +347,7 @@ class LendBorrowBTCUSD_Product(DLCP, Base):
     interest_b              = Column("interest_b",              Float,      nullable=True)
     interest_b_ear          = Column("interest_b_ear",          Float,      nullable=True)
     funding_inputs          = Column("funding_inputs",          JSON,       nullable=True, default=dict)
-    funding_txid            = Column("funding_txid",            String,     nullable=True)  # Funding TX ID
-    outcome_txid            = Column("outcome_txid",            String,     nullable=True)  # Outcome TX ID
-    timer_a_start           = Column("timer_a_start",           Float,      nullable=True)  # Timestamp for Timer_A
-    timer_b_start           = Column("timer_b_start",           Float,      nullable=True)  # Timestamp for Timer_B
-    timer_b_duration        = Column("timer_b_duration",        Integer,    nullable=False, default=300)  # Duration in seconds (default: 5 minutes)
-    timer_b_active          = Column("timer_b_active",          Boolean,    nullable=False, default=True)  # Indicates if Timer_B is active
+
 
     def __init__(self,
                  tmp_cntr_id: str,
@@ -275,12 +360,8 @@ class LendBorrowBTCUSD_Product(DLCP, Base):
                  interest_b: Optional[float]                = None,
                  interest_b_ear: Optional[float]            = None,
                  funding_inputs: Optional[Dict[str, Any]]   = None,
-                 funding_txid: Optional[str]                = None,
-                 outcome_txid: Optional[str]                = None,
-                 timer_a_start: Optional[float]             = None,  # Timestamp for Timer_A
-                 timer_b_start: Optional[float]             = None,  # Timestamp for Timer_B
-                 timer_b_duration: int                      = 300,
-                 timer_b_active: bool                       = True,
+                 ftx_id: Optional[str]                = None,
+                 cet_id: Optional[str]                = None,
                  *args,
                  **kwargs):
         """
@@ -301,12 +382,8 @@ class LendBorrowBTCUSD_Product(DLCP, Base):
         self.interest_b         = interest_b
         self.interest_b_ear     = interest_b_ear
         self.funding_inputs     = funding_inputs
-        self.funding_txid       = funding_txid
-        self.outcome_txid       = outcome_txid
-        self.timer_a_start      = timer_a_start
-        self.timer_b_start      = timer_b_start
-        self.timer_b_duration   = timer_b_duration
-        self.timer_b_active     = timer_b_active
+        self.ftx_id       = ftx_id
+        self.cet_id       = cet_id
 
     def generate_id_hash(self) -> str:
         """Function generates a unique ID for the DLC row"""
