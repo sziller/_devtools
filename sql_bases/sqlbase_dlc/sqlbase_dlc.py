@@ -315,7 +315,7 @@ class LendBorrowBTCUSD_Product(DLCP, Base):
     orcl_final_value            = Column("orcl_final_value",            String,     nullable=True)
     orcl_outcome_time           = Column("orcl_outcome_time",           String,     nullable=True)
     orcl_signatures             = Column("orcl_signatures",             String,     nullable=True)
-    orcl_outcome_digits_json    = Column("orcl_outcome_digits_json",    String,     nullable=True)
+    orcl_outcome_digits_json    = Column("orcl_outcome_digits_json",    JSON,       nullable=True, default=dict)
     orcl_outcome_url            = Column("orcl_outcome_url",            String,     nullable=True)
     orcl_outcome_at             = Column("orcl_outcome_at",             String,     nullable=True)
         
@@ -348,7 +348,7 @@ class LendBorrowBTCUSD_Product(DLCP, Base):
     confirmed_rtx_at            = Column("confirmed_rtx_at",            Integer,    nullable=True)
         
     ini_role                    = Column("ini_role",                    String,     nullable=True)  # 0: lend 1: borrow
-    duration                    = Column("duration",                    Integer,    nullable=True)  # Duration in days
+    duration                    = Column("duration",                    Float,    nullable=True)  # Duration in days
     interest                    = Column("interest",                    Float,      nullable=True)
     interest_ear                = Column("interest_ear",                Float,      nullable=True)
     interest_b                  = Column("interest_b",                  Float,      nullable=True)
@@ -359,7 +359,7 @@ class LendBorrowBTCUSD_Product(DLCP, Base):
                  product_id: str,
                  expiry_offer: Optional[int]                = None,
                  ini_role: Optional[str]                    = None,
-                 duration: Optional[int]                    = None,
+                 duration: Optional[float]                  = None,
                  interest: Optional[float]                  = None,
                  interest_ear: Optional[float]              = None,
                  interest_b: Optional[float]                = None,
