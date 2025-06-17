@@ -248,6 +248,9 @@ class DLCP(DLC):
     acc_email: Optional[str]
     ini_pubkey_index: Optional[int]
     acc_pubkey_index: Optional[int]
+    # if Contract needs a base value to compare it with a later outcome, use this:
+    # Integer to match dlc.orcl_final_value
+    start_value: Optional[int]
     
     def __init__(self,
                  product_id: str = "dlcp",
@@ -256,6 +259,7 @@ class DLCP(DLC):
                  acc_email: Optional[str] = None,
                  ini_pubkey_index: Optional[int] = None,
                  acc_pubkey_index: Optional[int] = None,
+                 start_value: Optional[int] = None,
                  *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.product_id         = product_id
@@ -264,6 +268,7 @@ class DLCP(DLC):
         self.acc_email          = acc_email
         self.ini_pubkey_index   = ini_pubkey_index
         self.acc_pubkey_index   = acc_pubkey_index
+        self.start_value        = start_value
 
 
 class LendBorrowBTCUSD_Product(DLCP, Base):
@@ -308,7 +313,8 @@ class LendBorrowBTCUSD_Product(DLCP, Base):
     nonces                      = Column("nonces",                      String,     nullable=True)
     interval_wildcards          = Column("interval_wildcards",          String,     nullable=True)
     num_digits                  = Column("num_digits",                  Integer,    nullable=True)
-        
+
+    start_value                 = Column("measured data's init value",  Integer,    nullable=True)
     orcl_event_id               = Column("orcl_event_id",               String,     nullable=True)
     orcl_event_time             = Column("orcl_event_time",             String,     nullable=True)
     orcl_poll_at                = Column("orcl_poll_at",                String,     nullable=True)
@@ -357,7 +363,7 @@ class LendBorrowBTCUSD_Product(DLCP, Base):
     def __init__(self,
                  tmp_cntr_id: str,
                  product_id: str,
-                 expiry_offer: Optional[int]                = None,
+                 # expiry_offer: Optional[int]                = None,
                  ini_role: Optional[str]                    = None,
                  duration: Optional[float]                  = None,
                  interest: Optional[float]                  = None,
@@ -376,7 +382,7 @@ class LendBorrowBTCUSD_Product(DLCP, Base):
         super().__init__(*args, **kwargs)
         
         # Initialize LendBorrowBTCUSD_Product-specific attributes
-        self.expiry_offer       = expiry_offer
+        # self.expiry_offer       = expiry_offer
         self.ini_role           = ini_role
         self.duration           = duration
         self.interest           = interest
