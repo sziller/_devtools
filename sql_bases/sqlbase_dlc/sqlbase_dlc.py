@@ -7,7 +7,7 @@ import logging
 from sqlalchemy import Column, Integer, String, JSON, Float
 from sqlalchemy.ext.declarative import declarative_base
 from typing import Dict, Optional, Any
-from cryptography import HashFunctions as HaFu
+from cryptography import HashFunctions as HaFu  # should not come from external custom source
 import hashlib  # Replace HaFu with hashlib if needed
 
 Base = declarative_base()
@@ -314,7 +314,7 @@ class LendBorrowBTCUSD_Product(DLCP, Base):
     interval_wildcards          = Column("interval_wildcards",          String,     nullable=True)
     num_digits                  = Column("num_digits",                  Integer,    nullable=True)
 
-    start_value                 = Column("measured data's init value",  Integer,    nullable=True)
+    start_value                 = Column("start_value",                 Integer,    nullable=True)
     orcl_event_id               = Column("orcl_event_id",               String,     nullable=True)
     orcl_event_time             = Column("orcl_event_time",             String,     nullable=True)
     orcl_poll_at                = Column("orcl_poll_at",                String,     nullable=True)
@@ -354,7 +354,7 @@ class LendBorrowBTCUSD_Product(DLCP, Base):
     confirmed_rtx_at            = Column("confirmed_rtx_at",            Integer,    nullable=True)
         
     ini_role                    = Column("ini_role",                    String,     nullable=True)  # 0: lend 1: borrow
-    duration                    = Column("duration",                    Float,    nullable=True)  # Duration in days
+    duration                    = Column("duration",                    Float,      nullable=True)  # Duration in days
     interest                    = Column("interest",                    Float,      nullable=True)
     interest_ear                = Column("interest_ear",                Float,      nullable=True)
     interest_b                  = Column("interest_b",                  Float,      nullable=True)
