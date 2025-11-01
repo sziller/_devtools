@@ -9,7 +9,7 @@ from typing import Any, Dict, List
 
 from sqlalchemy import (
     Column, String, Integer, Float, BigInteger, SmallInteger,
-    DateTime, func, JSON, CheckConstraint
+    DateTime, func, JSON, CheckConstraint, Boolean, Nullable
 )
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.ext.mutable import MutableList
@@ -81,9 +81,10 @@ class ProductLendBorrow(Base):
     num_digits: int                 = Column(SmallInteger, nullable=False) # 7
 
     # Bookkeeping (timezone-aware)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
-
+    created_at                  = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at                  = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+    active                      = Column(Boolean, nullable=False, server_default="1")
+    
     # --- Helpers ---------------------------------------------------------------------------------------------------- #
     def return_as_dict(self) -> Dict[str, Any]:
         """Return instance as a plain dict (safe for JSON responses)."""
@@ -108,6 +109,7 @@ class ProductLendBorrow(Base):
             "num_digits": self.num_digits,
             "created_at": self.created_at,
             "updated_at": self.updated_at,
+            "active": self.active
         }
 
     def __repr__(self):
@@ -136,9 +138,25 @@ class ProductLendBorrow(Base):
             service_fee_split_percent=d["service_fee_split_percent"],
             payout_boost_sats=d["payout_boost_sats"],
             num_digits=d["num_digits"],
+            active=d["active"]
         )
 
-# --- Tiny seeder (optional): bulk insert from your dict -------------------------------------------------------------- #
+    # inside class ProductLendBorrow(Base):  (your columns here…)
+    @classmethod
+    def construct(cls, d_in: Dict[str, Any]) -> ProductLendBorrow:
+        """Construct an instance from a dictionary."""
+        # keep only known columns; ignore extras
+        column_names = {c.name for c in cls.__table__.columns}
+        payload = {k: v for k, v in d_in.items() if k in column_names}
+
+        # default behavior for active if missing
+        if "active" not in payload:
+            payload["active"] = True
+            
+        return cls(**payload)
+
+
+# --- Tiny seeder (optional): bulk insert from your dict ----------------------------------------------------------- #
 def seed_product_details(cfg: Dict[str, Dict[str, Any]], session: Session) -> None:
     """
     Ingests your config dict directly:

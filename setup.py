@@ -8,8 +8,8 @@ python setup.py sdist bdist_wheel
 from setuptools import setup
 
 setup(
-    name='devtools',  # package name, used at pip or tar.
-    version='0.0.13',  # version Nr.... whatever
+    name='devtools',  # package name, used at pip or tar. - fullname for the DLCP development
+    version='0.0.16',  # version Nr.... whatever
     # ATTENTION: use different packages for use-cases
     packages=["shmc_api_classes", "shmc_backend_classes", "sz_messages", "sql_access", "sql_bases", "log_tools",
               "email_service",
@@ -19,6 +19,7 @@ setup(
               "sql_bases/sqlbase_user_anonym",
               "sql_bases/sqlbase_utxo",
               "sql_bases/sqlbase_dlc",
+              "sql_bases/sqlbase_prd_lendborrow",
               "sql_bases/sqlbase_transaction"
               ],
     include_package_data=True,
