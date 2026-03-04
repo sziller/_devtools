@@ -271,6 +271,181 @@ class DLCP(DLC):
         self.start_value        = start_value
 
 
+class LendBorrowBTCXXX_Product(DLCP, Base):
+    """=================================================================================================================
+    Database Table for the fully extended Lend-Borrow Product.
+    Renamed to represent and foreign currency.
+    ============================================================================================== by Sziller ==="""
+    __tablename__ = "lb_btcxxx_products"
+
+    dlc_id = Column("dlc_id", String, nullable=False, primary_key=True)
+    tmp_cntr_id = Column("tmp_cntr_id", String, nullable=False)
+    created_at = Column("created_at", Float, nullable=False, default=lambda: time.time())
+    updated_at = Column("updated_at", Float, nullable=False, default=lambda: time.time())
+    status = Column("status", String, nullable=False, default="created")
+    protocol_version = Column("protocol_version", Integer, nullable=False, default=1)
+    chain_hash = Column("chain_hash", String(64), nullable=False,
+                        default="000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f")
+    cntr_flags = Column("cntr_flags", Integer, nullable=False, default=0)
+
+    ini_pubkey_funding = Column("ini_pubkey_funding", String, nullable=True)
+    ini_pubkey_index = Column("ini_pubkey_index", Integer, nullable=True)
+    ini_payout_spk = Column("ini_payout_spk", String, nullable=True)
+    ini_payout_ser_id = Column("ini_payout_ser_id", Integer, nullable=True)
+    ini_change_spk = Column("ini_change_spk", String, nullable=True)
+    ini_change_ser_id = Column("ini_change_ser_id", Integer, nullable=True)
+    ini_fund_output_ser_id = Column("ini_fund_output_ser_id", Integer, nullable=True)
+    ini_num_funding_inputs = Column("ini_num_funding_inputs", Integer, nullable=True)
+    ini_collateral_sats = Column("ini_collateral_sats", Integer, nullable=True)
+    ini_signatures = Column("ini_signatures", JSON, nullable=True, default=dict)
+
+    acc_pubkey_funding = Column("acc_pubkey_funding", String, nullable=True)
+    acc_pubkey_index = Column("acc_pubkey_index", Integer, nullable=True)
+    acc_payout_spk = Column("acc_payout_spk", String, nullable=True)
+    acc_payout_ser_id = Column("acc_payout_ser_id", Integer, nullable=True)
+    acc_change_spk = Column("acc_change_spk", String, nullable=True)
+    acc_change_ser_id = Column("acc_change_ser_id", Integer, nullable=True)
+    acc_fund_output_ser_id = Column("acc_fund_output_ser_id", Integer, nullable=True)
+    acc_num_funding_inputs = Column("acc_num_funding_inputs", Integer, nullable=True)
+    acc_collateral_sats = Column("acc_collateral_sats", Integer, nullable=True)
+    acc_signatures = Column("acc_signatures", JSON, nullable=True, default=dict)
+
+    orcl_id = Column("orcl_id", String, nullable=True)
+    orcl_pubkey = Column("orcl_pubkey", String, nullable=True)
+    digit_string_template = Column("digit_string_template", String, nullable=True)
+    nonces = Column("nonces", String, nullable=True)
+    interval_wildcards = Column("interval_wildcards", String, nullable=True)
+    num_digits = Column("num_digits", Integer, nullable=True)
+
+    start_value = Column("start_value", Integer, nullable=True)
+    orcl_event_id = Column("orcl_event_id", String, nullable=True)
+    orcl_event_time = Column("orcl_event_time", String, nullable=True)
+    orcl_poll_at = Column("orcl_poll_at", String, nullable=True)
+    orcl_final_value = Column("orcl_final_value", String, nullable=True)
+    orcl_outcome_time = Column("orcl_outcome_time", String, nullable=True)
+    orcl_signatures = Column("orcl_signatures", String, nullable=True)
+    orcl_outcome_digits_json = Column("orcl_outcome_digits_json", JSON, nullable=True, default=dict)
+    orcl_outcome_url = Column("orcl_outcome_url", String, nullable=True)
+    orcl_outcome_at = Column("orcl_outcome_at", String, nullable=True)
+
+    cntr_terms = Column("cntr_terms", JSON, nullable=True, default=dict)
+    feerate_per_vb = Column("feerate_per_vb", Integer, nullable=True)
+    cet_locktime = Column("cet_locktime", Integer, nullable=True)
+    refund_locktime = Column("refund_locktime", Integer, nullable=True)
+
+    offered_at = Column("offered_at", Float, nullable=True)
+    accepted_at = Column("accepted_at", Float, nullable=True)
+    signed_ini_at = Column("signed_ini_at", Float, nullable=True)
+    signed_acc_at = Column("signed_acc_at", Float, nullable=True)
+    attest_at = Column("attest_at", Float, nullable=True)
+    refund_at = Column("refund_at", Float, nullable=True)
+
+    product_id = Column("product_id", String, nullable=False)
+    expiry_offer = Column("expiry_offer", Integer, nullable=True)
+    ini_email = Column("ini_email", String, nullable=True)
+    acc_email = Column("acc_email", String, nullable=True)
+
+    ftx_id = Column("ftx_id", String, nullable=True)  # Funding TX ID
+    rtx_id = Column("rtx_id", String, nullable=True)  # Refund TX ID
+    cet_id = Column("cet_id", String, nullable=True)  # CET (valid) TX ID
+    funding_inputs = Column("funding_inputs", JSON, nullable=True, default=dict)
+    broadcast_ftx_at = Column("broadcast_ftx_at", Integer, nullable=True)
+    broadcast_cet_at = Column("broadcast_cet_at", Integer, nullable=True)
+    broadcast_rtx_at = Column("broadcast_rtx_at", Integer, nullable=True)
+    confirmed_cet_at = Column("confirmed_cet_at", Integer, nullable=True)
+    confirmed_ftx_at = Column("confirmed_ftx_at", Integer, nullable=True)
+    confirmed_rtx_at = Column("confirmed_rtx_at", Integer, nullable=True)
+
+    ini_role = Column("ini_role", String, nullable=True)
+    duration = Column("duration", Float, nullable=True)  # Duration in days
+    interest = Column("interest", Float, nullable=True)
+    interest_ear = Column("interest_ear", Float, nullable=True)
+    interest_b = Column("interest_b", Float, nullable=True)
+    interest_b_ear = Column("interest_b_ear", Float, nullable=True)
+
+    # -------------------------------
+    # Layer-2 FIAT floating offer logic
+    # -------------------------------
+    # Margin in basis points (500 = 5.00%)
+    margin_bps = Column("margin_bps", Integer, nullable=True)
+    # Reserved liquidity including margin (authoritative integer sats)
+    acc_res_liqu_sats = Column("acc_res_liqu_sats", Integer, nullable=True)
+    ini_res_liqu_sats = Column("ini_res_liqu_sats", Integer, nullable=True)
+    
+    def __init__(self,
+                 tmp_cntr_id: str,
+                 product_id: str,
+                 # expiry_offer: Optional[int]                = None,
+                 ini_role: Optional[str] = None,
+                 duration: Optional[float] = None,
+                 interest: Optional[float] = None,
+                 interest_ear: Optional[float] = None,
+                 interest_b: Optional[float] = None,
+                 interest_b_ear: Optional[float] = None,
+                 *args,
+                 **kwargs):
+        """
+        Override the constructor to ensure dlc_id gets the value of tmp_cntr_id if not provided.
+        """
+        # mandatory argument passing
+        kwargs["tmp_cntr_id"] = tmp_cntr_id
+        kwargs["dlc_id"] = tmp_cntr_id  # Assign tmp_cntr_id to dlc_id if dlc_id not explicitly provided!!!
+        kwargs["product_id"] = product_id
+        super().__init__(*args, **kwargs)
+
+        # Initialize LendBorrowBTCXXX_Product-specific attributes
+        # self.expiry_offer       = expiry_offer
+        self.ini_role = ini_role
+        self.duration = duration
+        self.interest = interest
+        self.interest_ear = interest_ear
+        self.interest_b = interest_b
+        self.interest_b_ear = interest_b_ear
+
+    def generate_id_hash(self) -> str:
+        """Function generates a unique ID for the DLC row"""
+        new_hash = HaFu.single_sha256_byte2byte(bytes(
+            f"{self.tmp_cntr_id}{self.created_at}",
+            "utf-8")).hex()[:16]
+        lg.warning(f"hash OLD  : {new_hash}")
+        new_hash = hashlib.sha256(
+            f"{self.tmp_cntr_id}{self.created_at}".encode("utf-8")
+        ).hexdigest()[:16]
+        lg.warning(f"hash NEW  : {new_hash}")
+        return new_hash
+
+    def return_as_dict(self) -> Dict[str, Any]:
+        """Returns the instance as a dictionary."""
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+
+    def update(self, **kwargs) -> None:
+        """Updates the instance attributes."""
+        for key, value in kwargs.items():
+            if hasattr(self, key):
+                setattr(self, key, value)
+        self.updated_at = time.time()  # Automatically update the timestamp
+
+    def __repr__(self) -> str:
+        return (f"LendBorrowProduct | DLC ID: {self.dlc_id} | Status: {self.status} | "
+                f"Duration: {self.duration} days")
+
+    @classmethod
+    def construct(cls, d_in: Dict[str, Any]) -> "LendBorrowBTCXXX_Product":
+        """Construct an instance from a dictionary."""
+        valid_keys = {c.name for c in cls.__table__.columns}
+        filtered_data = {k: v for k, v in d_in.items() if k in valid_keys}
+
+        # Enforce tmp_cntr_id presence
+        if "tmp_cntr_id" not in filtered_data or not filtered_data["tmp_cntr_id"]:
+            raise ValueError("Missing required field: tmp_cntr_id")
+
+        # Derive dlc_id from tmp_cntr_id
+        filtered_data["dlc_id"] = filtered_data["tmp_cntr_id"]
+
+        return cls(**filtered_data)
+
+""" --- OBSOLETE class --- """
+
 class LendBorrowBTCUSD_Product(DLCP, Base):
     """Database Table for the fully extended Lend-Borrow Product."""
     __tablename__ = "lb_btcusd_products"

@@ -90,12 +90,18 @@ class UTXO(Base):
     spend_txid: str = Column(String, nullable=True)      # TXID that spent this UTXO (when known)
 
     # --- Origin / TX lifecycle
+    # origin_state = Column(
+    #     Enum(OriginState, native_enum=False),
+    #     nullable=False,
+    #     default=OriginState.CONFIRMED.value,
+    #     server_default=OriginState.CONFIRMED.value,
+    # )
     origin_state = Column(
-        Enum(OriginState, native_enum=False),
+        Enum(OriginState, native_enum=False,  # keep as before (good for SQLite)
+             values_callable=lambda enum_cls: [e.value for e in enum_cls]),
         nullable=False,
         default=OriginState.CONFIRMED.value,
-        server_default=OriginState.CONFIRMED.value,
-    )
+        server_default=OriginState.CONFIRMED.value)
     # Local handle for the TX that (will) create this output.
     # For on-chain UTXOs, txid is already the real on-chain txid, so this may be NULL.
     origin_txid_local: str = Column(String, nullable=True)
