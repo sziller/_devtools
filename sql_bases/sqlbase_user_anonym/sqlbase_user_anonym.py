@@ -5,8 +5,9 @@ by Sziller
 from typing import Optional
 
 # imports for general Base handling START                                                   -   START   -
-from sqlalchemy import Column, Integer, String, Float, BOOLEAN, JSON, UniqueConstraint, Index, CheckConstraint
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import (Column, Integer, String, Float, BOOLEAN, JSON, UniqueConstraint,
+                        Index, CheckConstraint, BigInteger, ForeignKey)
+from sqlalchemy.orm import declarative_base
 from sqlalchemy import event
 from sqlalchemy import inspect as sqla_inspect
 # imports for general Base handling ENDED                                                   -   ENDED   -
@@ -61,7 +62,6 @@ class UserAnonym(Base):
     visitor_id: str         = Column("visitor_id",          String,                     nullable=True)  # optional anon cookie/session id
 
     __table_args__ = (
-        UniqueConstraint("uuid", name="uq_useranonyms_uuid"),
         UniqueConstraint("referral_code", name="uq_useranonyms_referral_code"),
         Index("ix_useranonyms_conf_tkn_hash", "conf_tkn_hash"),
         CheckConstraint('uuid_parent IS NULL OR uuid_parent <> uuid', name='ck_no_self_referral')
@@ -149,3 +149,4 @@ def _guard_immutable_fields(mapper, connection, target: UserAnonym):
         new = insp.attrs.uuid_parent.history.added
         if old and old[0] is not None and new and new[0] != old[0]:
             raise ValueError("UserAnonym.uuid_parent is immutable once set (first-touch).")
+

@@ -9,7 +9,7 @@ from setuptools import setup
 
 setup(
     name='devtools',  # package name, used at pip or tar. - fullname for the DLCP development
-    version='0.0.20',  # version Nr.... whatever
+    version='0.0.22',  # version Nr.... whatever
     # ATTENTION: use different packages for use-cases
     packages=["shmc_api_classes", "shmc_backend_classes", "sz_messages", "sql_access", "sql_bases", "log_tools",
               "email_service",
@@ -17,6 +17,7 @@ setup(
               "sql_bases/sqlbase_node",
               "sql_bases/sqlbase_user",
               "sql_bases/sqlbase_user_anonym",
+              "sql_bases/sqlbase_liquidity"
               "sql_bases/sqlbase_utxo",
               "sql_bases/sqlbase_dlc",
               "sql_bases/sqlbase_prd_lendborrow",

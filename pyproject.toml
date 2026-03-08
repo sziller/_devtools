@@ -1,0 +1,45 @@
+[build-system]
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "devtools"
+version = "0.0.25"
+description = "Development tool for different projects"
+authors = [
+    {name = "sziller", email = "szillerke@gmail.com"}
+]
+license = {text = "MIT"}
+requires-python = ">=3.10"
+
+dependencies = [
+    "pyzmq",
+    "sqlalchemy",
+    "fastapi",
+    "python-jose",
+    "passlib"
+]
+
+[tool.setuptools]
+packages = [
+    "shmc_api_classes",
+    "shmc_backend_classes",
+    "sz_messages",
+    "sql_access",
+    "sql_bases",
+    "log_tools",
+    "email_service",
+    "sql_bases.sqlbase_measurement",
+    "sql_bases.sqlbase_node",
+    "sql_bases.sqlbase_user",
+    "sql_bases.sqlbase_user_anonym",
+    "sql_bases.sqlbase_liquidity",
+    "sql_bases.sqlbase_utxo",
+    "sql_bases.sqlbase_dlc",
+    "sql_bases.sqlbase_prd_lendborrow",
+    "sql_bases.sqlbase_transaction",
+    "sql_bases.sqlbase_oracle"
+]
+
+# to setup *build environment* run: pip install build
+# to build a given package: python -m build
