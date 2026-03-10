@@ -94,6 +94,8 @@ class Oracle(Base):
     provider = Column(String(128), nullable=False)
 
     endpoint = Column(String(256), nullable=False)
+    
+    endpoint_price = Column(String(256), nullable=False)
 
     supported_symbols = Column(JSON, nullable=False)
 
@@ -122,6 +124,7 @@ class Oracle(Base):
             "oracle_name": self.oracle_name,
             "provider": self.provider,
             "endpoint": self.endpoint,
+            "endpoint_price": self.endpoint_price,
             "supported_symbols": self.supported_symbols,
             "active": self.active,
             "meta": self.meta
