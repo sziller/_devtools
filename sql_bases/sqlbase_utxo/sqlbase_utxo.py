@@ -55,8 +55,9 @@ That keeps backward compatibility and conservative risk behavior.
 
 import logging
 from enum import Enum as PyEnum
-from sqlalchemy import Column, String, Text, TIMESTAMP, func, UniqueConstraint, Integer, BigInteger, Boolean, Enum
-from sqlalchemy.orm import declarative_base
+from datetime import datetime
+from sqlalchemy import Index, String, Text, DateTime, func, false, Integer, BigInteger, Boolean, Enum
+from sqlalchemy.orm import declarative_base, Mapped, mapped_column
 
 Base = declarative_base()
 
@@ -159,7 +160,7 @@ class UTXOOrigin(PyEnum):
     INTERNAL = "internal"
 
 
-class UTXO(Base):
+class Utxo(Base):
     """=== Classname: UTXO(Base) ================================================================
     Class representing an Unspent Transaction Output tracked by the engine.
 
@@ -245,8 +246,8 @@ class UTXO(Base):
     # - `txid` is the transaction that created THIS output
     # - `vout` is the output index within that transaction
     #
-    txid: str = Column(String, primary_key=True)
-    vout: int = Column(Integer, primary_key=True)
+    txid: Mapped[str] = mapped_column(String, primary_key=True)
+    vout: Mapped[int] = mapped_column(primary_key=True)
 
     # ---------------------------------------------------------------------------------
     # Output payload data
@@ -268,10 +269,10 @@ class UTXO(Base):
     #   - p2tr
     #   - p2wsh
 
-    value: int                      = Column(BigInteger, nullable=False)
-    script_pubkey: str              = Column(Text, nullable=False)
-    address: str                    = Column(String, nullable=True)
-    script_type: str                = Column(String, nullable=True)
+    value: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    script_pubkey: Mapped[str] = mapped_column(Text, nullable=False)
+    address: Mapped[str | None] = mapped_column(String, nullable=True)
+    script_type: Mapped[str | None] = mapped_column(String, nullable=True)
 
     # ---------------------------------------------------------------------------------
     # Chain metadata
@@ -293,8 +294,8 @@ class UTXO(Base):
     #
     #     confirm_depth = current_tip_height - block_height + 1
 
-    block_height: int               = Column(Integer, nullable=True)
-    block_time                      = Column(TIMESTAMP, nullable=True)
+    block_height: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    block_time: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
 
     # ---------------------------------------------------------------------------------
     # Spend lifecycle
@@ -324,9 +325,13 @@ class UTXO(Base):
     #
     #   If the spending TX is still only in mempool, this should remain NULL.
 
-    is_spent: bool                  = Column(Boolean, nullable=False, default=False)
-    spend_txid: str                 = Column(String, nullable=True)
-    spent_height: int               = Column(Integer, nullable=True)
+    is_spent: Mapped[bool] = mapped_column(
+        Boolean,
+        default=False,
+        server_default=false()
+    )
+    spend_txid: Mapped[str | None] = mapped_column(String, nullable=True)
+    spent_height: Mapped[int | None] = mapped_column(Integer, nullable=True)
 
     # ---------------------------------------------------------------------------------
     # Origin / TX lifecycle metadata
@@ -347,13 +352,18 @@ class UTXO(Base):
     #   - some engine flows use internal local TX handles before final network
     #     settlement
     #
-    origin_state                    = Column(Enum(OriginState,
-                                                  native_enum=False,
-                                                  values_callable=lambda enum_cls: [e.value for e in enum_cls]),
-                                             nullable=False,
-                                             default=OriginState.CONFIRMED.value,
-                                             server_default=OriginState.CONFIRMED.value)
-    origin_txid_local: str          = Column(String, nullable=True)
+    origin_state: Mapped[OriginState] = mapped_column(
+        Enum(
+            OriginState,
+            native_enum=False,
+            values_callable=lambda enum_cls: [e.value for e in enum_cls],
+        ),
+        nullable=False,
+        default=OriginState.CONFIRMED,
+        server_default=OriginState.CONFIRMED.value,
+    )
+
+    origin_txid_local: Mapped[str | None] = mapped_column(String, nullable=True)
 
     # ---------------------------------------------------------------------------------
     # Economic provenance metadata
@@ -381,11 +391,15 @@ class UTXO(Base):
     #   `origin_state` answers: "how certain / visible is the creating TX?"
     #   `origin_type`  answers: "what economic class of value is this?"
 
-    origin_type                     = Column(Enum(UTXOOrigin,
-                                                  native_enum=False,
-                                                  values_callable=lambda enum_cls: [e.value for e in enum_cls]),
-                                             nullable=True,
-                                             default=None)
+    origin_type: Mapped[UTXOOrigin | None] = mapped_column(
+        Enum(
+            UTXOOrigin,
+            native_enum=False,
+            values_callable=lambda enum_cls: [e.value for e in enum_cls],
+        ),
+        nullable=True,
+        default=None,
+    )
     # ---------------------------------------------------------------------------------
     # DLC / funding reservation layer
     # ---------------------------------------------------------------------------------
@@ -406,10 +420,10 @@ class UTXO(Base):
     # The soft reservation model here is simplified as a single DLC id.
     # A future N:M reservation model could be implemented with a join table.
     #
-    reserved_for_dlc_id: str        = Column(String, nullable=True)
-    reserved_for_txid_local: str    = Column(String, nullable=True)
-    reserved_at                     = Column(TIMESTAMP, nullable=True)
-    reservation_expires_at          = Column(TIMESTAMP, nullable=True)
+    reserved_for_dlc_id: Mapped[str | None] = mapped_column(String, nullable=True)
+    reserved_for_txid_local: Mapped[str | None] = mapped_column(String, nullable=True)
+    reserved_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    reservation_expires_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
 
     # ---------------------------------------------------------------------------------
     # Wallet provenance
@@ -432,9 +446,9 @@ class UTXO(Base):
     #   - oracle
     #   - treasury
     #
-    xpub: str                       = Column(String, nullable=True)
-    derivation_path: str            = Column(String, nullable=True)
-    wallet_tag: str                 = Column(String, nullable=True)
+    xpub: Mapped[str | None] = mapped_column(String, nullable=True)
+    derivation_path: Mapped[str | None] = mapped_column(String, nullable=True)
+    wallet_tag: Mapped[str | None] = mapped_column(String, nullable=True)
 
     # ---------------------------------------------------------------------------------
     # Housekeeping
@@ -445,14 +459,30 @@ class UTXO(Base):
     # `updated_at`
     #   Automatically refreshed when the row is updated by SQLAlchemy-supported flows.
     #
-    created_at                      = Column(TIMESTAMP, server_default=func.now())
-    updated_at                      = Column(TIMESTAMP, server_default=func.now(), onupdate=func.now())
+    created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now(), nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now(), nullable=False,
+                                                 onupdate=func.now())
 
-    __table_args__ = (UniqueConstraint("txid", "vout", name="unique_outpoint"))
+    seen_in_scan_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True, index=True)
 
+    __table_args__ = (
+        Index("idx_utxo_xpub", xpub),
+        Index("idx_utxo_spent", is_spent),
+        Index("idx_utxo_reserved", reserved_for_txid_local),
+        Index("idx_utxo_select", xpub, is_spent),
+        Index("idx_utxo_coin_select", xpub, is_spent, reserved_for_txid_local),
+        Index("idx_utxo_reservation_expiry", reservation_expires_at),
+        Index("idx_utxo_seen_scan", seen_in_scan_at),
+    )
+    
     # ---------------------------------------------------------------------------------
     # Convenience properties (NOT stored)
     # ---------------------------------------------------------------------------------
+    @property
+    def outpoint(self) -> str:
+        """convenience property used all accross Bitcoin"""
+        return f"{self.txid}:{self.vout}"
+    
     @property
     def is_soft_reserved(self) -> bool:
         """True if this UTXO is earmarked for a DLC at soft-reservation level."""
@@ -472,9 +502,7 @@ class UTXO(Base):
 
         This keeps old data and partial-ingestion flows conservative.
         """
-        if self.origin_type is None:
-            return UTXOOrigin.EXTERNAL
-        return self.origin_type
+        return self.origin_type or UTXOOrigin.EXTERNAL
 
     @property
     def is_currently_available_for_new_work(self) -> bool:
@@ -489,64 +517,67 @@ class UTXO(Base):
           That remains a higher-level policy decision.
         - Some flows may still decide to exclude soft-reserved UTXOs.
         """
-        return (self.is_spent is False) and (self.is_hard_reserved is False)
+        return (not self.is_spent) and (not self.is_hard_reserved)
 
-    def return_as_dict(self):
+    def to_dict(self) -> dict:
         """Return instance as a dictionary for API use, debugging, or logging."""
+
+        origin_state = self.origin_state
+        origin_type = self.origin_type
+        effective_origin = self.effective_origin_type
+
         return {
             "txid": self.txid,
             "vout": self.vout,
+            "outpoint": self.outpoint,
             "value": self.value,
             "script_pubkey": self.script_pubkey,
             "address": self.address,
             "script_type": self.script_type,
+
             "block_height": self.block_height,
             "block_time": self.block_time,
+
             "is_spent": self.is_spent,
             "spend_txid": self.spend_txid,
             "spent_height": self.spent_height,
+
             "origin_state": (
-                self.origin_state.value
-                if isinstance(self.origin_state, OriginState)
-                else self.origin_state
+                origin_state.value if isinstance(origin_state, OriginState) else origin_state
             ),
+
             "origin_txid_local": self.origin_txid_local,
+
             "origin_type": (
-                self.origin_type.value
-                if isinstance(self.origin_type, UTXOOrigin)
-                else self.origin_type
+                origin_type.value if isinstance(origin_type, UTXOOrigin) else origin_type
             ),
+
             "effective_origin_type": (
-                self.effective_origin_type.value
-                if isinstance(self.effective_origin_type, UTXOOrigin)
-                else self.effective_origin_type
+                effective_origin.value
+                if isinstance(effective_origin, UTXOOrigin)
+                else effective_origin
             ),
+
             "reserved_for_dlc_id": self.reserved_for_dlc_id,
             "reserved_for_txid_local": self.reserved_for_txid_local,
             "reserved_at": self.reserved_at,
             "reservation_expires_at": self.reservation_expires_at,
+
             "xpub": self.xpub,
             "derivation_path": self.derivation_path,
             "wallet_tag": self.wallet_tag,
+
             "is_soft_reserved": self.is_soft_reserved,
             "is_hard_reserved": self.is_hard_reserved,
             "is_currently_available_for_new_work": self.is_currently_available_for_new_work,
+
             "created_at": self.created_at,
             "updated_at": self.updated_at,
         }
 
     def __repr__(self):
-        origin_type_repr = (
-            self.origin_type.value
-            if isinstance(self.origin_type, UTXOOrigin)
-            else self.origin_type
-        )
-
-        origin_state_repr = (
-            self.origin_state.value
-            if isinstance(self.origin_state, OriginState)
-            else self.origin_state
-        )
+        origin_type_repr = getattr(self.origin_type, "value", self.origin_type)
+        origin_state_repr = getattr(self.origin_state, "value", self.origin_state)
 
         return (
             f"UTXO({self.txid}:{self.vout}, value={self.value}, "
