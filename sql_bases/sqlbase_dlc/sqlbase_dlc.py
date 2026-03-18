@@ -5,7 +5,7 @@ by Sziller """
 import time
 import logging
 from sqlalchemy import Column, Integer, String, JSON, Float
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import declarative_base
 from typing import Dict, Optional, Any
 from cryptography import HashFunctions as HaFu  # should not come from external custom source
 import hashlib  # Replace HaFu with hashlib if needed

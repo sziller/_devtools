@@ -5,7 +5,7 @@ by Sziller
 """
 from __future__ import annotations
 import logging
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from sqlalchemy import (
     Column, String, Integer, Float, BigInteger, SmallInteger,
@@ -37,7 +37,8 @@ class ProductLendBorrow(Base):
                         name="ck_products_lendborrow_fee_0_100"),
         CheckConstraint("service_fee_split_percent >= 0 AND service_fee_split_percent <= 100",
                         name="ck_products_lendborrow_fee_split_0_100"),
-        CheckConstraint("contract_value >= 0", name="ck_products_lendborrow_contract_value_nonneg"),
+        CheckConstraint("contract_value IS NULL OR contract_value >= 0",
+                        name="ck_products_lendborrow_contract_value_nonneg"),
         CheckConstraint("payout_boost_sats >= 0", name="ck_products_lendborrow_payout_boost_nonneg"),
         CheckConstraint("num_digits >= 0", name="ck_products_lendborrow_num_digits_nonneg"),
     )
@@ -65,7 +66,7 @@ class ProductLendBorrow(Base):
     refund_delay_days: int          = Column(Integer, nullable=False)  # 30
 
     # Monetary-ish values
-    contract_value: int         = Column(BigInteger, nullable=False)   # 100_000 (use BigInteger for headroom)
+    contract_value: Optional[int]   = Column(BigInteger, nullable=True)   # 100_000 (use BigInteger for headroom)
     payout_boost_sats: int      = Column(BigInteger, nullable=False)   # 500
 
     # Function paths (kept as strings)
@@ -138,7 +139,7 @@ class ProductLendBorrow(Base):
             service_fee_split_percent=d["service_fee_split_percent"],
             payout_boost_sats=d["payout_boost_sats"],
             num_digits=d["num_digits"],
-            active=d["active"]
+            active=d.get("active", True)
         )
 
     # inside class ProductLendBorrow(Base):  (your columns here…)

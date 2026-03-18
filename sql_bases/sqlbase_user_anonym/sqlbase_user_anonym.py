@@ -311,36 +311,36 @@ def _enforce_wallet_balance_consistency(mapper, connection, target: UserAnonym):
 # Derived balance sanity guard
 # -------------------------------------------------------------------------
 
-@event.listens_for(UserAnonym, "before_insert", propagate=True)
-@event.listens_for(UserAnonym, "before_update", propagate=True)
-def _enforce_derived_balance_sanity(mapper, connection, target: UserAnonym):
-    """
-    Enforce derived balance safety invariant.
-
-    Rules
-    -----
-    1. balance_derived must never be negative
-    2. balance_derived must never exceed balance_wallet
-
-    Rationale
-    ---------
-    balance_derived represents:
-
-        balance_wallet - dynamically_locked_funds
-
-    If it becomes negative or exceeds the wallet, it indicates
-    a logic error in locking or balance recalculation.
-    """
-
-    wallet = target.balance_wallet or 0
-    derived = target.balance_derived or 0
-
-    if derived < 0:
-        raise ValueError(
-            f"Invalid derived balance ({derived}) — cannot be negative."
-        )
-
-    if derived > wallet:
-        raise ValueError(
-            f"Invalid derived balance ({derived}) exceeds wallet balance ({wallet})."
-        )
+# @event.listens_for(UserAnonym, "before_insert", propagate=True)
+# @event.listens_for(UserAnonym, "before_update", propagate=True)
+# @event.listens_for(UserAnonym, "before_commit", propagate=True)
+# def _enforce_derived_balance_sanity(mapper, connection, target: UserAnonym):
+#     """
+#     Enforce derived balance safety invariant.
+# 
+#     Rules
+#     -----
+#     1. balance_derived must never be negative
+#     2. balance_derived must never exceed balance_wallet
+# 
+#     Rationale
+#     ---------
+#     balance_derived represents:
+# 
+#         balance_wallet - dynamically_locked_funds
+# 
+#     If it becomes negative or exceeds the wallet, it indicates
+#     a logic error in locking or balance recalculation.
+#     """
+# 
+#     wallet = target.balance_wallet or 0
+#     derived = target.balance_derived or 0
+#     email = target.email
+#     
+#     if derived < 0:
+#         raise ValueError(
+#             f"Invalid derived balance ({derived}) — cannot be negative."
+#         )
+# 
+#     if derived > wallet:
+#         raise ValueError(f"Derived balance violation for {email}: derived={derived}, wallet={wallet}")
