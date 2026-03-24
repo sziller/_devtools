@@ -145,17 +145,18 @@ class UserAnonym(Base):
     # -------------------------------------------------------------------------
 
     uuid_parent: Mapped[Optional[str]] = mapped_column(String(32), nullable=True, index=True)
-
     referral_code: Mapped[str] = mapped_column(String(64), nullable=False, unique=True)
-
     par_referral_code: Mapped[Optional[str]] = mapped_column(String(64), nullable=True)
-
     referral_first_touch_ts: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
-
     referral_src_url: Mapped[Optional[str]] = mapped_column(String, nullable=True)
-
     visitor_id: Mapped[Optional[str]] = mapped_column(String, nullable=True)
 
+    # -------------------------------------------------------------------------
+    # possible KYC
+    # -------------------------------------------------------------------------
+    
+    kyc_status: Mapped[str] = mapped_column(String, nullable=True)
+    
     # -------------------------------------------------------------------------
     # Table constraints
     # -------------------------------------------------------------------------
@@ -194,6 +195,7 @@ class UserAnonym(Base):
         referral_first_touch_ts: Optional[int] = None,
         referral_src_url: Optional[str] = None,
         visitor_id: Optional[str] = None,
+        kyc_status: Optional[str] = None,
         **kwargs,
     ):
 
@@ -227,6 +229,7 @@ class UserAnonym(Base):
         self.referral_first_touch_ts = referral_first_touch_ts
         self.referral_src_url = referral_src_url
         self.visitor_id = visitor_id
+        self.kyc_status = kyc_status
 
     # -------------------------------------------------------------------------
     # Convenience helpers
