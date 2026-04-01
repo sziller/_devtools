@@ -38,6 +38,8 @@ class LiquidityAllocation(Base):
 
     id: int = Column("id", Integer, primary_key=True)
 
+    product_id: str = Column("product_id", String, nullable=False, index=True)
+    
     # --- User identity (UUID based) ---
     uuid: str = Column("uuid", String(32), nullable=False, index=True)
     # --- Allocation identity parameters ---
@@ -63,12 +65,13 @@ class LiquidityAllocation(Base):
         # Allocation identity uniqueness constraint
         UniqueConstraint(
             "uuid",
-            "service_type",
+            "product_id",
+            # "service_type",  # <-- included and encoded in product_id
             "oracle_hash",
             "interest_bp",
             "ini_role",
-            "ltv_percent",
-            "duration_days",
+            # "ltv_percent",  # <-- included and encoded in product_id
+            # "duration_days",  # <-- included and encoded in product_id
             name="uq_liquidity_allocation_identity"
         ),
 
@@ -115,6 +118,7 @@ class LiquidityAllocation(Base):
 
     def __init__(self,
                  uuid: str,
+                 product_id: str,              # ✅ ADD
                  service_type: str,
                  oracle_hash: str,
                  oracle_serialized: str,
@@ -126,6 +130,7 @@ class LiquidityAllocation(Base):
                  timestamp: float,
                  **kwargs):
         self.uuid: str = uuid
+        self.product_id = product_id  # ✅ ADD
         self.service_type: str = service_type
         self.oracle_hash: str = oracle_hash
         self.oracle_serialized: str = oracle_serialized
@@ -149,6 +154,7 @@ class LiquidityAllocation(Base):
         return (
             f"LiquidityAllocation("
             f"uuid={self.uuid}, "
+            f"product_id={self.product_id}, "
             f"service={self.service_type}, "
             f"role={self.ini_role}, "
             f"ltv={self.ltv_percent}, "

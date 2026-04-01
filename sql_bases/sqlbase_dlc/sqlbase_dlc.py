@@ -328,6 +328,8 @@ class LendBorrowBTCXXX_Product(DLCP, Base):
     orcl_outcome_url = Column("orcl_outcome_url", String, nullable=True)
     orcl_outcome_at = Column("orcl_outcome_at", String, nullable=True)
 
+    final_interval = Column(String, nullable=True)
+
     cntr_terms = Column("cntr_terms", JSON, nullable=True, default=dict)
     feerate_per_vb = Column("feerate_per_vb", Integer, nullable=True)
     cet_locktime = Column("cet_locktime", Integer, nullable=True)

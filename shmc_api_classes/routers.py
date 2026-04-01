@@ -22,7 +22,7 @@ from typing import Optional
 from fastapi import APIRouter
 from sz_messages import msg
 from shmc_api_classes.auth_services import *
-from sql_bases.sqlbase_measurement.sqlbase_measurement import Measurement as sqlMeasurement
+from sql_bases.sqlbase_aquaponics_control.sqlbase_measurement import Measurement as sqlMeasurement
 from sql_access import sql_interface as sqli
 
 # Setting up logger                                                                     -   START   -

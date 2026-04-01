@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "devtools"
-version = "0.2.0"
+version = "0.2.3"
 description = "Development tool for different projects"
 authors = [
     {name = "sziller", email = "szillerke@gmail.com"}
@@ -38,7 +38,8 @@ packages = [
     "sql_bases.sqlbase_dlc",
     "sql_bases.sqlbase_prd_lendborrow",
     "sql_bases.sqlbase_transaction",
-    "sql_bases.sqlbase_oracle"
+    "sql_bases.sqlbase_oracle",
+    "sql_bases.sqlbase_idempotency"
 ]
 
 # to setup *build environment* run: pip install build
