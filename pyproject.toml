@@ -46,4 +46,4 @@ packages = [
 ]
 
 # to setup *build environment* run: pip install build
-# to build a given package: python -m build
+# to build a given package: python3 -m build
