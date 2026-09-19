@@ -1,6 +1,6 @@
 fastapi
 pyzmq
 pydantic
-sqlalchemy
+sqlalchemy>=2.0
 passlib
 python-jose         # needed for authentication

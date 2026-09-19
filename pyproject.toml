@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "devtools"
-version = "0.2.8"
+version = "0.5.1"
 description = "Development tool for different projects"
 authors = [
     {name = "sziller", email = "szillerke@gmail.com"}
@@ -14,7 +14,7 @@ requires-python = ">=3.10"
 
 dependencies = [
     "pyzmq",
-    "sqlalchemy",
+    "sqlalchemy>=2.0",
     "fastapi",
     "python-jose",
     "passlib"
@@ -29,12 +29,12 @@ packages = [
     "sql_bases",
     "log_tools",
     "email_service",
-    "sqlbase_user_shmc",
     "sql_bases.sqlbase_user_shmc",
     "sql_bases.sqlbase_aquaponics_control",
     "sql_bases.sqlbase_node",
     "sql_bases.sqlbase_user",
     "sql_bases.sqlbase_user_anonym",
+    "sql_bases.sqlbase_push_registration",
     "sql_bases.sqlbase_user_kyc",
     "sql_bases.sqlbase_liquidity",
     "sql_bases.sqlbase_utxo",
