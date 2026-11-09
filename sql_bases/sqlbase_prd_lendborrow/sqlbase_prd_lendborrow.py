@@ -180,11 +180,22 @@ class ProductLendBorrow(Base):
         DateTime(timezone=True), nullable=True, server_default=func.now(), onupdate=func.now(),
     )
     active: Mapped[bool] = mapped_column(nullable=False, server_default="1")
+    listed: Mapped[bool] = mapped_column(nullable=False, default=True, server_default="1")
+    # Authorization bit positions (OR), never masks. None means unrestricted.
+    allowed_auth_bit_positions: Mapped[list[int] | None] = mapped_column(
+        MutableList.as_mutable(
+            JSON(none_as_null=True).with_variant(
+                postgresql.JSONB(none_as_null=True), "postgresql"
+            )
+        ),
+        nullable=True,
+    )
     
     # --- Helpers ---------------------------------------------------------------------------------------------------- #
     def __init__(self, **kwargs: Any) -> None:
         # Supplied hashes are never authoritative, including serialized round-trips.
         kwargs.pop("product_hash", None)
+        kwargs.setdefault("listed", True)
         super().__init__(**kwargs)
         self.validate_product_reference()
         self.product_hash = self.calculate_product_hash()
@@ -211,7 +222,8 @@ class ProductLendBorrow(Base):
         if type(value) is not int or not 0 <= value <= 2**63 - 1:
             raise ValueError(f"{field} must be a non-negative integer satoshi amount within BIGINT range")
 
-    @validates("product_function", "symbol", "min_contract_value", "max_contract_value")
+    @validates("product_function", "symbol", "min_contract_value", "max_contract_value",
+               "allowed_auth_bit_positions")
     def _validate_reference_field(self, key: str, value: Any) -> Any:
         if key in ("product_function", "symbol"):
             if not isinstance(value, str) or not value.strip():
@@ -225,11 +237,19 @@ class ProductLendBorrow(Base):
                 if not isinstance(oracle_id, str) or not oracle_id.strip():
                     raise ValueError("max_contract_value keys must be non-empty Oracle identifier strings")
                 self._validate_satoshis(amount, f"max_contract_value[{oracle_id!r}]")
+        elif key == "allowed_auth_bit_positions" and value is not None:
+            if not isinstance(value, list) or not value:
+                raise ValueError("allowed_auth_bit_positions must be a non-empty list or None")
+            if any(type(position) is not int or position < 0 for position in value):
+                raise ValueError("allowed_auth_bit_positions must contain non-negative Python integers, not booleans")
+            if len(set(value)) != len(value):
+                raise ValueError("allowed_auth_bit_positions must not contain duplicate positions")
         return value
 
     def validate_product_reference(self) -> None:
-        """Validate reference fields and per-Oracle limits before persistence."""
-        for field in ("product_function", "symbol", "min_contract_value", "max_contract_value"):
+        """Validate references, limits and mutable authorization policy before persistence."""
+        for field in ("product_function", "symbol", "min_contract_value", "max_contract_value",
+                      "allowed_auth_bit_positions"):
             self._validate_reference_field(field, getattr(self, field))
         # Validate the relationship after all attributes are set, regardless of keyword order.
         if self.max_contract_value:
@@ -265,7 +285,9 @@ class ProductLendBorrow(Base):
             "num_digits": self.num_digits,
             "created_at": self.created_at,
             "updated_at": self.updated_at,
-            "active": self.active
+            "active": self.active,
+            "listed": self.listed,
+            "allowed_auth_bit_positions": self.allowed_auth_bit_positions,
         }
 
     def __repr__(self) -> str:
@@ -298,7 +320,9 @@ class ProductLendBorrow(Base):
             service_fee_split_percent=d["service_fee_split_percent"],
             payout_boost_sats=d["payout_boost_sats"],
             num_digits=d["num_digits"],
-            active=d.get("active", True)
+            active=d.get("active", True),
+            listed=d.get("listed", True),
+            allowed_auth_bit_positions=d.get("allowed_auth_bit_positions"),
         )
 
     # inside class ProductLendBorrow(Base):  (your columns here…)
@@ -312,6 +336,8 @@ class ProductLendBorrow(Base):
         # default behavior for active if missing
         if "active" not in payload:
             payload["active"] = True
+        payload.setdefault("listed", True)
+        payload.setdefault("allowed_auth_bit_positions", None)
             
         return cls(**payload)
 
