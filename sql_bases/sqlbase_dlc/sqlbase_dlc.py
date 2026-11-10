@@ -7,8 +7,7 @@ import logging
 from sqlalchemy import Column, Integer, String, JSON, Float
 from sqlalchemy.orm import declarative_base
 from typing import Dict, Optional, Any
-from cryptography import HashFunctions as HaFu  # should not come from external custom source
-import hashlib  # Replace HaFu with hashlib if needed
+import hashlib
 
 Base = declarative_base()
 
@@ -406,10 +405,6 @@ class LendBorrowBTCXXX_Product(DLCP, Base):
 
     def generate_id_hash(self) -> str:
         """Function generates a unique ID for the DLC row"""
-        new_hash = HaFu.single_sha256_byte2byte(bytes(
-            f"{self.tmp_cntr_id}{self.created_at}",
-            "utf-8")).hex()[:16]
-        lg.warning(f"hash OLD  : {new_hash}")
         new_hash = hashlib.sha256(
             f"{self.tmp_cntr_id}{self.created_at}".encode("utf-8")
         ).hexdigest()[:16]
